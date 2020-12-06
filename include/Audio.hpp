@@ -59,22 +59,20 @@ public:
 
     ~Audio();
 
-    // SDL_AudioSpec spec;
-
     // 获取一些通用的信息
     uint32_t get_fmt_size() const {return wav_header.fmt_size;};
     uint16_t get_channels() const {return channels;}
     uint32_t get_sample_rate() const {return sample_rate;}
-    // 每秒字节数
-    // uint32_t get_byte_rate() const {return wav_header.fmt_byte_rate;}
-    // uint16_t get_block_align() const {return wav_header.fmt_block_align;}
     uint16_t get_bits_per_sample() const {return bits_per_sample;}
 
     uint32_t get_max_len() const {return max_len;};
     WAVE_HEADER get_wav_header() const {return wav_header;};
+
 private:
     WAVE_HEADER wav_header;
     WAV_DATA datas[128];
+
+    int type;
 
     // 最长的音频的长度
     uint32_t max_len;
