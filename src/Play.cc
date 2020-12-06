@@ -234,7 +234,6 @@ void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_ra
         // mixer.get_mix(play_back, buffer_size);
         mixer.get_mix(buf, buffer_size);
 
-        std::cout << "in while" << std::endl;
         ret = snd_pcm_writei(gp_handle, buf, frames);
         if (ret == -EPIPE || ret < 0) {
             std::cout << "underrun occured or ret < 0" << std::endl;
@@ -243,7 +242,7 @@ void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_ra
         usleep(sleep_time*1000);
     }
 
-    // 这里需要重新写一下whie的判断条件
+    // 这里需要重新写一下while的判断条件
     // ctrl c的时候结束
     // ctrl c统一个函数，该函数结束所有各种各样的线程
     snd_pcm_drain(gp_handle);
@@ -313,12 +312,6 @@ void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels,
             continue;
         }
 
-        // 等待播放完毕
-        // ret = pa_simple_drain(s, &error);
-        // if (ret < 0) {
-            // std::cout << "error occured" << std::endl;
-            // continue;
-        // }
         usleep(sleep_time*1000);
     }
 
