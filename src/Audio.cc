@@ -8,7 +8,7 @@
 
 // type = VARIETY多样表示钢琴，也就是str是一个目录
 // type = SOLE单一表示所有的按键使用一个声音，也就是str是一个文件
-Audio::Audio(std::string str, int type):max_len(0) {
+Audio::Audio(std::string str, int type):max_len(0), type(type) {
     init_value(str, type);
     if (type == VARIETY) {
         for (int i = 0; i < 128; i++) {
@@ -25,8 +25,8 @@ Audio::Audio(std::string str, int type):max_len(0) {
 }
 
 Audio::Audio(std::string str, int type, uint16_t channels,
-    uint32_t sample_rate, uint16_t bits_per_sample): max_len(0), channels(channels),
-    sample_rate(sample_rate), bits_per_sample(bits_per_sample) {
+    uint32_t sample_rate, uint16_t bits_per_sample): max_len(0), type(type),
+    channels(channels), sample_rate(sample_rate), bits_per_sample(bits_per_sample) {
     if (type == VARIETY) {
         for (int i = 0; i < 128; i++) {
             read_wav(str + "/" + std::to_string(i) + ".wav", datas[i]);
@@ -113,7 +113,10 @@ WAV_DATA Audio::get_wav_by_code(uint16_t code) {
 
 
 Audio::~Audio() {
-    for (int i = 0; i < 128; i++) {
-        if (datas[i].data) delete [] datas[i].data;
-    }
+    if (type == VARIETY)
+        for (int i = 0; i < 128; i++) {
+            if (datas[i].data) delete [] datas[i].data;
+        }
+    else
+        delete [] datas[0].data;
 }
