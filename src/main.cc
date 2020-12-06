@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 {
     Audio audio("./sources/paino", VARIETY);
     // Audio audio("./sources/keyany.wav", SOLE);
-    Mixer mixer(audio.get_max_len());
+    Mixer mixer(audio.get_max_len()*2);
 
     std::thread th(device_detect, &audio, &mixer);
     th.detach();
