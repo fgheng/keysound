@@ -18,8 +18,7 @@ extern "C" {
 #ifdef __SDL_CALL_BACK__
 static void sdl_callback(void *userdata, uint8_t *stream, int len) {
     Mixer *mixer = (Mixer *)userdata;
-    SDL_memset4(stream, 0, len);
-    // SDL_MixAudio(stream, stream, len, SDL_MIX_MAXVOLUME);
+    SDL_memset(stream, 0, len);
     mixer->get_mix(stream, len);
 }
 #endif
@@ -38,7 +37,6 @@ void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_ra
             // 小字端，AUDIO_S16LSB
             // 与系统一致，AUDIO_S16SYS
             spec.format = AUDIO_S16LSB;
-            // spec.format = AUDIO_S16SYS;
             break;
         case 32:
             spec.format = AUDIO_S32LSB;
@@ -47,11 +45,11 @@ void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_ra
             spec.format = AUDIO_U8;
             break;
     }
-    // spec.silence = 0; // 静音值
+    spec.silence = 0; // 静音值
     spec.channels = channels;
     // 缓冲区大小，单位帧
     // 帧frame的数量，每个帧的字节数量=通道*bits_per_sample/8
-    spec.samples = 1024;
+    spec.samples = 2048;
     spec.size = spec.samples * channels * bits_per_sample / 8; // 缓冲区大小，单位字节
 
 #ifdef __SDL_CALL_BACK__
@@ -92,7 +90,8 @@ void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_ra
         SDL_memset(buf, 0, spec.size);
         mixer.get_mix(buf, spec.size);
         SDL_QueueAudio(dev, buf, spec.size);
-        SDL_Delay(sleep_time);
+        // SDL_Delay(sleep_time);
+        usleep(sleep_time*1000);
 #endif
     }
 
@@ -104,14 +103,13 @@ void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_ra
 
 #endif
 
-#ifdef USE_ALSA
+#ifdef __USE_ALSA__
 extern "C" {
 #include <alsa/asoundlib.h>
 #include <alsa/pcm.h>
 }
 
 static snd_pcm_t * gp_handle;
-static uint32_t sleep_time;
 static uint32_t buffer_size;
 static snd_pcm_uframes_t frames;
 
@@ -125,6 +123,7 @@ static snd_pcm_uframes_t frames;
  */
 static int alsa_init(uint32_t fmt_size, uint16_t channels,
         uint32_t sample_rate, uint16_t bits_per_sample) {
+
     int rc;
     snd_pcm_hw_params_t *gp_params; // 设置流的硬件参数
 
@@ -211,18 +210,13 @@ static int alsa_init(uint32_t fmt_size, uint16_t channels,
 
     buffer_size = frames * channels * bits_per_sample / 8;
 
-    // 一个buffer的延迟，ms
-    sleep_time = buffer_size * 1000 / (sample_rate * channels * bits_per_sample / 8);
-
-    std::cout << "睡眠时间是： " << sleep_time << "ms" << std::endl;
-
     return 0;
 }
 
-static void play_back(uint8_t *stream, uint32_t size) {
-    int ret = snd_pcm_writei(gp_handle, stream, size);
-    usleep(sleep_time);
-}
+// static void play_back(uint8_t *stream, uint32_t size) {
+    // int ret = snd_pcm_writei(gp_handle, stream, size);
+    // usleep(sleep_time);
+// }
 
 void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample) {
 
@@ -232,6 +226,7 @@ void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_ra
         return;
     }
 
+    uint32_t sleep_time = buffer_size * 1000 / (sample_rate * channels * bits_per_sample / 8);
     uint8_t buf[buffer_size];
     while (true) {
         std::memset(buf, 0, buffer_size);
@@ -239,12 +234,13 @@ void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_ra
         // mixer.get_mix(play_back, buffer_size);
         mixer.get_mix(buf, buffer_size);
 
+        std::cout << "in while" << std::endl;
         ret = snd_pcm_writei(gp_handle, buf, frames);
         if (ret == -EPIPE || ret < 0) {
             std::cout << "underrun occured or ret < 0" << std::endl;
             continue;
         }
-        usleep(sleep_time);
+        usleep(sleep_time*1000);
     }
 
     // 这里需要重新写一下whie的判断条件
@@ -298,26 +294,32 @@ void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels,
         return;
     }
 
-    int error, ret, bl = 4096;
-    uint8_t buf[bl];
-    while (true) {
-        std::memset(buf, 0, bl);
-        mixer.get_mix(buf, bl);
+    // frame的数量
+    uint16_t frame_num = 2048;
+    // 每个frame拥有的字节数
+    uint16_t frame_bytes = channels * bits_per_sample / 8;
+    // 一个buffer持续的时间
+    uint32_t sleep_time = (frame_num * frame_bytes * 1000) /
+        (sample_rate * channels * bits_per_sample / 8);
 
-        ret = pa_simple_write(s, buf, 4096, &error);
+    int error, ret;
+    uint8_t buf[frame_num * frame_bytes];
+    while (true) {
+        std::memset(buf, 0, frame_num * frame_bytes);
+        mixer.get_mix(buf, frame_num * frame_bytes);
+        ret = pa_simple_write(s, buf, frame_num * frame_bytes, &error);
         if (ret < 0) {
             std::cout << "pulse write error" << std::endl;
             continue;
         }
 
         // 等待播放完毕
-        ret = pa_simple_drain(s, &error);
-        if (ret < 0) {
-            std::cout << "error occured" << std::endl;
-            continue;
-        }
-
-        std::cout << "---" << std::endl;
+        // ret = pa_simple_drain(s, &error);
+        // if (ret < 0) {
+            // std::cout << "error occured" << std::endl;
+            // continue;
+        // }
+        usleep(sleep_time*1000);
     }
 
     pa_simple_free(s);
