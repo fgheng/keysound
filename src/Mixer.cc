@@ -9,7 +9,7 @@ extern "C" {
 #include <unistd.h>
 }
 
-Mixer::Mixer(uint32_t buffer_len) : buffer_len(buffer_len), has_data(false) {
+Mixer::Mixer(uint32_t buffer_len) : buffer_len(buffer_len) {
     if (buffer_len == 0) {
         buffer = nullptr;
         pos = buffer;
@@ -23,10 +23,6 @@ Mixer::Mixer(uint32_t buffer_len) : buffer_len(buffer_len), has_data(false) {
     pos = buffer;
     buffer_start = buffer;
     buffer_end = buffer_start + buffer_len;
-
-    index_pos = 0;
-    index_start = 0;
-    index_end = index_start + buffer_len;
 }
 
 // 进行混音，从当前的pos位置开始即可
@@ -53,39 +49,29 @@ void Mixer::mix(uint8_t *buf, uint32_t size, uint16_t bits_per_sample) {
 
 void Mixer::mix8(uint8_t *buf, uint32_t size) {
     // 增加数据end会移动
-    // 有数据，stop_get为假
     if (buffer_end - pos < size) {
         // 传入的size要比pos 到 end大
         mtx.lock();
         for (int i = 0; i < buffer_end - pos; i++) {
             uint8_t A = *(pos + i);
             uint8_t B = *(buf + i);
-            *(pos+i) = (A + B) - (A * B >> 16);
+            *(pos+i) = mix_uint8(A, B);
         }
 
         for (int i = 0; i < size - (buffer_end - pos); i++) {
             uint8_t A = *(buffer_start + i);
             uint8_t B = *(buf + (buffer_end - pos) + i);
-            *(buffer_start+i) = (A + B) - (A * B >> 16);
+            *(buffer_start+i) = mix_uint8(A, B);
         }
 
-        auto left = size - (buffer_end - pos);
-        end = buffer_start + left > end ? buffer_start + left : end;
-
-        // 有新数据了，可以获取
-        has_data = true;
         mtx.unlock();
     } else {
         mtx.lock();
         for (int i = 0; i < size; i++) {
             uint8_t A = *(pos + i);
             uint8_t B = *(buf + i);
-            *(pos+i) = (A + B) - (A * B >> 16);
+            *(pos+i) = mix_uint8(A, B);
         }
-        end = pos + size > end ? pos + size : end;
-
-        // 有新数据了，可以获取
-        has_data = true;
         mtx.unlock();
     }
 }
@@ -99,35 +85,26 @@ void Mixer::mix16(uint8_t *buf, uint32_t size) {
     if (buffer_end - pos < size) {
         mtx.lock();
         for (int i = 0; i < (buffer_end-pos) / 2; i++) {
-            uint16_t A = *((uint16_t *)pos + i);
-            uint16_t B = *((uint16_t *)buf + i);
-            *((uint16_t *)pos + i) = (A + B) - (A * B >> 16);
+            int16_t A = *((int16_t *)pos + i);
+            int16_t B = *((int16_t *)buf + i);
+            *((int16_t *)pos + i) = mix_int16(A, B);
         }
 
         for (int i = 0; i < (size-(buffer_end-pos)) / 2; i++) {
-            uint16_t A = *((uint16_t *)buffer_start + i);
-            uint16_t B = *((uint16_t *)(buf + (buffer_end - pos)) + i);
+            int16_t A = *((int16_t *)buffer_start + i);
+            int16_t B = *((int16_t *)(buf + (buffer_end - pos)) + i);
 
-            *((uint16_t *)buffer_start + i) = (A + B) - (A * B >> 16);
+            *((int16_t *)buffer_start + i) = mix_int16(A, B);
         }
-
-        auto left = size - (buffer_end - pos);
-        end = buffer_start + left > end ? buffer_start + left : end;
-
-        has_data = true;
 
         mtx.unlock();
     } else {
         mtx.lock();
         for (int i = 0; i < size / 2; i++) {
-            uint16_t A = *((uint16_t *)pos + i);
-            uint16_t B = *((uint16_t *)buf + i);
-            *((uint16_t *)pos+i) = (A + B) - (A * B >> 16);
+            int16_t A = *((int16_t *)pos + i);
+            int16_t B = *((int16_t *)buf + i);
+            *((int16_t *)pos + i) = mix_int16(A, B);
         }
-
-        end = pos + size > end ? pos + size : end;
-
-        has_data = true;
 
         mtx.unlock();
     }
@@ -139,35 +116,26 @@ void Mixer::mix32(uint8_t *buf, uint32_t size) {
     if (buffer_end - pos < size) {
         mtx.lock();
         for (int i = 0; i < (buffer_end-pos) / 4; i++) {
-            uint32_t A = *((uint32_t *)pos + i);
-            uint32_t B = *((uint32_t *)buf + i);
-            *((uint32_t *)pos + i) = (A + B) - (A * B >> 32);
+            int32_t A = *((int32_t *)pos + i);
+            int32_t B = *((int32_t *)buf + i);
+            *((int32_t *)pos + i) = mix_int32(A, B);
         }
 
         for (int i = 0; i < (size-(buffer_end-pos)) / 4; i++) {
-            uint32_t A = *((uint32_t *)buffer_start + i);
-            uint32_t B = *((uint32_t *)(buf + (buffer_end - pos)) + i);
+            int32_t A = *((int32_t *)buffer_start + i);
+            int32_t B = *((int32_t *)(buf + (buffer_end - pos)) + i);
 
-            *((uint32_t *)buffer_start + i) = (A + B) - (A * B >> 32);
+            *((int32_t *)buffer_start + i) = mix_int32(A, B);
         }
-
-        auto left = size - (buffer_end - pos);
-        end = buffer_start + left > end ? buffer_start + left : end;
-
-        has_data = true;
 
         mtx.unlock();
     } else {
         mtx.lock();
         for (int i = 0; i < size / 4; i++) {
-            uint32_t A = *((uint32_t *)pos + i);
-            uint32_t B = *((uint32_t *)buf + i);
-            *((uint32_t *)pos+i) = (A + B) - (A * B >> 32);
+            int32_t A = *((int32_t *)pos + i);
+            int32_t B = *((int32_t *)buf + i);
+            *((int32_t *)pos + i) = mix_int32(A, B);
         }
-
-        end = pos + size > end ? pos + size : end;
-
-        has_data = true;
 
         mtx.unlock();
     }
@@ -175,10 +143,6 @@ void Mixer::mix32(uint8_t *buf, uint32_t size) {
 
 // 需要考虑一下
 void Mixer::get_mix(call_back func, uint32_t size) {
-    if (!has_data || buffer_len == 0) {
-        return;
-    }
-
     // 取数据，pos会移动
     mtx.lock();
 
@@ -186,7 +150,6 @@ void Mixer::get_mix(call_back func, uint32_t size) {
     // 所以这里应该重写，不需要这个，即使出现了，应该设置大小为到最后的值即可
     if (size > buffer_end - pos) {
         func(pos, buffer_end - pos);
-        // 归0
         std::memset(pos, 0, buffer_end-pos);
 
         uint32_t left = size - (buffer_end - pos);
@@ -200,22 +163,11 @@ void Mixer::get_mix(call_back func, uint32_t size) {
         std::memset(pos, 0, size);
         pos += size;
     }
-
-    // 判断是否结束，没有数据了，可以暂停
-    if (pos >= end) {
-        // 结束了，应该暂停播放
-        // 不是暂停播放，而是停止向队列中增加数据
-        has_data = false;
-    }
     mtx.unlock();
 }
 
 // 向buf拷贝size个数据
 void Mixer::get_mix(uint8_t *buf, uint32_t size) {
-    if (!has_data || buffer_len == 0) {
-        return;
-    }
-
     // 取数据，pos会移动
     mtx.lock();
 
@@ -236,12 +188,44 @@ void Mixer::get_mix(uint8_t *buf, uint32_t size) {
         std::memset(pos, 0, size);
         pos += size;
     }
-
-    // 判断是否结束，没有数据了，可以暂停
-    if (pos >= end) {
-        // 结束了，应该暂停播放
-        // 不是暂停播放，而是停止向队列中增加数据
-        has_data = false;
-    }
     mtx.unlock();
+}
+
+uint8_t Mixer::mix_uint8(uint8_t A, uint8_t B) {
+    return 0;
+}
+
+int8_t Mixer::mix_int8(int8_t A, int8_t B) {
+    int16_t A1 = (int16_t)A;
+    int16_t B1 = (int16_t)B;
+    int16_t C = A1 + B1 - (A1 * B1 >> 0x08);
+
+    if (C > 127) C = 127;
+    else if (C < -128) C = -128;
+
+    return C;
+}
+
+int16_t Mixer::mix_int16(int16_t A, int16_t B) {
+
+    // 参考http://blog.sina.com.cn/s/blog_4d61a7570101arsr.html
+    int32_t A1 = (int32_t)A;
+    int32_t B1 = (int32_t)B;
+    int32_t C = A1 + B1 - (A1 * B1 >> 0x10);
+
+    if (C > 32767) C = 32767;
+    else if (C < -32768) C = -32768;
+
+    return C;
+}
+
+int32_t Mixer::mix_int32(int32_t A, int32_t B) {
+    int64_t A1 = (int64_t)A;
+    int64_t B1 = (int64_t)B;
+    int64_t C = A1 + B1 - (A1 * B1 >> 0x20);
+
+    if (C > 2147483647) C = 2147483647;
+    else if (C < 2147483648) C = -2147483648;
+
+    return C;
 }
