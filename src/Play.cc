@@ -7,6 +7,8 @@ extern "C" {
 #include <unistd.h>
 #include <alsa/asoundlib.h>
 #include <alsa/pcm.h>
+
+#include <pulse/simple.h>
 }
 
 
@@ -124,7 +126,7 @@ static void play_back(uint8_t *stream, uint32_t size) {
     usleep(sleep_time);
 }
 
-void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample) {
+void play_alsa(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample) {
 
     int ret = init_hardware(fmt_size, channels, sample_rate, bits_per_sample);
     if (ret < 0) {
@@ -132,7 +134,8 @@ void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_ra
         return;
     }
 
-    uint8_t *buf = new uint8_t[buffer_size];
+    // uint8_t *buf = new uint8_t[buffer_size];
+    uint8_t buf[buffer_size];
     while (true) {
         std::memset(buf, 0, buffer_size);
 
@@ -152,5 +155,65 @@ void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_ra
     // ctrl c统一个函数，该函数结束所有各种各样的线程
     snd_pcm_drain(gp_handle);
     snd_pcm_close(gp_handle);
-    free(buf);
+    // free(buf);
+}
+
+void play_pulse(Mixer &mixer, uint32_t fmt_size, uint16_t channels,
+        uint32_t sample_rate, uint16_t bits_per_sample) {
+
+    pa_simple *s;
+    pa_sample_spec ss;
+
+    switch (fmt_size) {
+        case 8:
+            ss.format = PA_SAMPLE_U8;
+            break;
+        case 16:
+            // wav的数据是小字端存储的
+            ss.format = PA_SAMPLE_S16LE;
+            break;
+        case 24:
+            // 有符号?
+            ss.format = PA_SAMPLE_S24LE;
+            break;
+        case 32:
+            // 有符号?
+            ss.format = PA_SAMPLE_S32LE;
+            break;
+        default:
+            ss.format = PA_SAMPLE_INVALID;
+            break;
+    }
+    ss.channels = channels;
+    ss.rate = sample_rate;
+
+    s = pa_simple_new(NULL, "keysound", PA_STREAM_PLAYBACK,
+                    NULL, "music", &ss, NULL, NULL, NULL);
+
+    if (!s) {
+        std::cout << "error occured while connect audio" << std::endl;
+        return;
+    }
+
+    int error, ret;
+    uint8_t buf[4096];
+    while (true) {
+        std::memset(buf, 0, 4096);
+        mixer.get_mix(buf, 4096);
+
+        ret = pa_simple_write(s, buf, 4096, &error);
+        if (ret < 0) {
+            std::cout << "pulse write error" << std::endl;
+            continue;
+        }
+
+        // 等待播放完毕
+        ret = pa_simple_drain(s, &error);
+        if (ret < 0) {
+            std::cout << "error occured" << std::endl;
+            continue;
+        }
+    }
+
+    pa_simple_free(s);
 }
