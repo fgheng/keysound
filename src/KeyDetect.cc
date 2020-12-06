@@ -59,8 +59,7 @@ void key_detect(std::string event_id, Audio *audio, Mixer *mixer) {
                 {
                     WAV_DATA wd = audio->get_wav_by_code(ie.code);
                     std::cout << " " << ie.code << " is pressed " << std::endl;
-                    // mixer->mix(wd.data, wd.len, wd.bits_per_sample);
-                    mixer->mix(wd.data, wd.len, 8);
+                    mixer->mix(wd.data, wd.len, wd.bits_per_sample);
                     break;
                 }
                 case KEY_RELEASE:
