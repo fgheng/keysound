@@ -196,36 +196,36 @@ uint8_t Mixer::mix_uint8(uint8_t A, uint8_t B) {
 }
 
 int8_t Mixer::mix_int8(int8_t A, int8_t B) {
-    int16_t A1 = (int16_t)A;
-    int16_t B1 = (int16_t)B;
+    int16_t A1 = static_cast<int16_t>(A);
+    int16_t B1 = static_cast<int16_t>(B);
     int16_t C = A1 + B1 - (A1 * B1 >> 0x08);
 
     if (C > 127) C = 127;
     else if (C < -128) C = -128;
 
-    return C;
+    return static_cast<int8_t>(C);
 }
 
 int16_t Mixer::mix_int16(int16_t A, int16_t B) {
 
     // 参考http://blog.sina.com.cn/s/blog_4d61a7570101arsr.html
-    int32_t A1 = (int32_t)A;
-    int32_t B1 = (int32_t)B;
+    int32_t A1 = static_cast<int32_t>(A);
+    int32_t B1 = static_cast<int32_t>(B);
     int32_t C = A1 + B1 - (A1 * B1 >> 0x10);
 
     if (C > 32767) C = 32760;
     else if (C < -32768) C = -32760;
 
-    return C;
+    return static_cast<int16_t>(C);
 }
 
 int32_t Mixer::mix_int32(int32_t A, int32_t B) {
-    int64_t A1 = (int64_t)A;
-    int64_t B1 = (int64_t)B;
+    int64_t A1 = static_cast<int64_t>(A);
+    int64_t B1 = static_cast<int64_t>(B);
     int64_t C = A1 + B1 - (A1 * B1 >> 0x20);
 
     if (C > 2147483647) C = 2147483647;
     else if (C < 2147483648) C = -2147483648;
 
-    return C;
+    return static_cast<int32_t>(C);
 }
