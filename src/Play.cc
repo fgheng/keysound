@@ -5,15 +5,113 @@
 
 extern "C" {
 #include <unistd.h>
-#include <alsa/asoundlib.h>
-#include <alsa/pcm.h>
-
-#include <pulse/simple.h>
 }
 
+#ifdef __USE_SDL__
+extern "C" {
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_audio.h>
+#include <SDL2/SDL_stdinc.h>
+#include <SDL2/SDL_timer.h>
+}
+
+#ifdef __SDL_CALL_BACK__
+static void sdl_callback(void *userdata, uint8_t *stream, int len) {
+    Mixer *mixer = (Mixer *)userdata;
+    SDL_memset4(stream, 0, len);
+    // SDL_MixAudio(stream, stream, len, SDL_MIX_MAXVOLUME);
+    mixer->get_mix(stream, len);
+}
+#endif
+
+void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample) {
+    uint32_t sleep_time; // 播放一组buffer所需的时间，ms
+    SDL_AudioDeviceID dev;
+    SDL_AudioSpec spec;
+
+    spec.freq = sample_rate; // 采样率
+    switch (bits_per_sample) {
+        case 8:
+            spec.format = AUDIO_U8;
+            break;
+        case 16:
+            // 小字端，AUDIO_S16LSB
+            // 与系统一致，AUDIO_S16SYS
+            spec.format = AUDIO_S16LSB;
+            // spec.format = AUDIO_S16SYS;
+            break;
+        case 32:
+            spec.format = AUDIO_S32LSB;
+            break;
+        default:
+            spec.format = AUDIO_U8;
+            break;
+    }
+    // spec.silence = 0; // 静音值
+    spec.channels = channels;
+    // 缓冲区大小，单位帧
+    // 帧frame的数量，每个帧的字节数量=通道*bits_per_sample/8
+    spec.samples = 1024;
+    spec.size = spec.samples * channels * bits_per_sample / 8; // 缓冲区大小，单位字节
+
+#ifdef __SDL_CALL_BACK__
+    spec.callback = sdl_callback;
+    spec.userdata = (void *)&mixer;
+#else
+    spec.callback = 0;
+    spec.userdata = 0;
+    sleep_time = (spec.size * 1000) / (sample_rate * channels * bits_per_sample / 8);
+#endif
+
+
+    if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_TIMER) != 0) {
+        std::cout << "init sdl error" << std::endl;
+        return;
+    }
+
+#ifdef __SDL_CALL_BACK__
+    if (SDL_OpenAudio(&spec, NULL) != 0) {
+        std::cout << "open device error" << std::endl;
+        return;
+    }
+    SDL_PauseAudio(0);
+#else
+    dev = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
+    if (dev == 0) {
+        std::cout << "open audio device error" << std::endl;
+        return;
+    }
+    SDL_PauseAudioDevice(dev, 0);
+    uint8_t buf[spec.size];
+#endif
+
+    while (true) {
+#ifdef __SDL_CALL_BACK__
+        SDL_Delay(1000);
+#else
+        SDL_memset(buf, 0, spec.size);
+        mixer.get_mix(buf, spec.size);
+        SDL_QueueAudio(dev, buf, spec.size);
+        SDL_Delay(sleep_time);
+#endif
+    }
+
+#ifndef __SDL_CALL_BACK__
+    SDL_CloseAudioDevice(dev);
+#endif
+    SDL_Quit();
+}
+
+#endif
+
+#ifdef USE_ALSA
+extern "C" {
+#include <alsa/asoundlib.h>
+#include <alsa/pcm.h>
+}
 
 static snd_pcm_t * gp_handle;
-static uint32_t sleep_time;            // 播放一个buffer_len_bytes长度的内容所需时间
+static uint32_t sleep_time;
 static uint32_t buffer_size;
 static snd_pcm_uframes_t frames;
 
@@ -25,7 +123,7 @@ static snd_pcm_uframes_t frames;
  * @param sample_rate 采样率
  * @param bits_per_sample 每个样本点所需的bit数量
  */
-static int init_hardware(uint32_t fmt_size, uint16_t channels,
+static int alsa_init(uint32_t fmt_size, uint16_t channels,
         uint32_t sample_rate, uint16_t bits_per_sample) {
     int rc;
     snd_pcm_hw_params_t *gp_params; // 设置流的硬件参数
@@ -126,15 +224,14 @@ static void play_back(uint8_t *stream, uint32_t size) {
     usleep(sleep_time);
 }
 
-void play_alsa(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample) {
+void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample) {
 
-    int ret = init_hardware(fmt_size, channels, sample_rate, bits_per_sample);
+    int ret = alsa_init(fmt_size, channels, sample_rate, bits_per_sample);
     if (ret < 0) {
         std::cout << "error in play" << std::endl;
         return;
     }
 
-    // uint8_t *buf = new uint8_t[buffer_size];
     uint8_t buf[buffer_size];
     while (true) {
         std::memset(buf, 0, buffer_size);
@@ -155,10 +252,16 @@ void play_alsa(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t samp
     // ctrl c统一个函数，该函数结束所有各种各样的线程
     snd_pcm_drain(gp_handle);
     snd_pcm_close(gp_handle);
-    // free(buf);
 }
 
-void play_pulse(Mixer &mixer, uint32_t fmt_size, uint16_t channels,
+#endif
+
+#ifdef __USE_PULSE__
+extern "C" {
+#include <pulse/simple.h>
+}
+
+void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels,
         uint32_t sample_rate, uint16_t bits_per_sample) {
 
     pa_simple *s;
@@ -195,11 +298,11 @@ void play_pulse(Mixer &mixer, uint32_t fmt_size, uint16_t channels,
         return;
     }
 
-    int error, ret;
-    uint8_t buf[4096];
+    int error, ret, bl = 4096;
+    uint8_t buf[bl];
     while (true) {
-        std::memset(buf, 0, 4096);
-        mixer.get_mix(buf, 4096);
+        std::memset(buf, 0, bl);
+        mixer.get_mix(buf, bl);
 
         ret = pa_simple_write(s, buf, 4096, &error);
         if (ret < 0) {
@@ -213,7 +316,10 @@ void play_pulse(Mixer &mixer, uint32_t fmt_size, uint16_t channels,
             std::cout << "error occured" << std::endl;
             continue;
         }
+
+        std::cout << "---" << std::endl;
     }
 
     pa_simple_free(s);
 }
+#endif
