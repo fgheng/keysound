@@ -36,6 +36,7 @@ void key_detect(std::string event_id, Audio *audio, Mixer *mixer) {
 
     // 成功运行，添加到key_detect_threads中
     add_event_id(tid);
+    std::cout << "我插进来了" << std::endl;
     while(event_id_exists(tid)) {
         FD_ZERO(&fds);
         FD_SET(fd, &fds);
