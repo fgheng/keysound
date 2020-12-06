@@ -27,15 +27,12 @@ void key_detect(std::string event_id, Audio *audio, Mixer *mixer) {
     fd_set fds;
     struct timeval tv;
 
-    std::cout << "准备检测文件 " << event_id << std::endl;
     fd = open((input_file_header + event_id).c_str(), O_RDONLY);
 
     if (fd == -1) {
         std::cout << "error occured while open event file" << std::endl;
         return;
     }
-
-    std::cout << "read for detect event" << event_id << "in thread " << std::endl;
 
     // 成功运行，添加到key_detect_threads中
     add_event_id(tid);
