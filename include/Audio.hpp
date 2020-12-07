@@ -17,9 +17,9 @@ extern "C" {
 #pragma pack(push, 1)
 typedef struct {
     // RIFF chuck
-    uint8_t  riff_id[4];       // 文档标识
-    uint32_t riff_size;        // 大小，整个文件-ID和riffsize
-    uint8_t  riff_type[4];     // "wav"，表示需要format区块和data区块，需要判断
+    uint8_t  riff_id[4];           // 文档标识
+    uint32_t riff_size;            // 大小，整个文件-ID和riffsize
+    uint8_t  riff_type[4];         // "wav"，表示需要format区块和data区块，需要判断
     // FORMAT chuck
     uint8_t  fmt_id[4];            // 小写字符串，"fmt"
     uint32_t fmt_size;             // 表示区块数据的长度，不包括fmt_id和fmt_size
@@ -81,10 +81,10 @@ private:
 
     void init_value(const std::string &);
     // 读取wav文件
-    void read_wav(const std::string&, WAV_DATA&);
+    void read_wav(const std::string &, WAV_DATA &);
 
     // 据说stat判断文件是否存在最快
-    bool file_exists(const std::string& file) const {
+    bool file_exists(const std::string &file) const {
         struct stat buffer;
         return (stat (file.c_str(), &buffer) == 0);
     }
