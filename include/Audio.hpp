@@ -71,7 +71,6 @@ private:
     WAVE_HEADER wav_header;
     WAV_DATA datas[256];
 
-    // int type;
     bool is_dir;
 
     // 最长的音频的长度
