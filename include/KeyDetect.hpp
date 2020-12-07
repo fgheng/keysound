@@ -5,6 +5,10 @@
 #include "Mixer.hpp"
 #include <string>
 
+#define KEY_RELEASE 0
+#define KEY_PRESS 1
+#define KEY_REPEAT 2
+
 void key_detect(std::string, Audio *, Mixer *);
 
 #endif
