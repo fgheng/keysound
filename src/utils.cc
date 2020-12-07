@@ -1,6 +1,16 @@
 #include "utils.hpp"
 #include <iostream>
 #include <cstring>
+#include <map>
+#include <memory>
+#include <string>
+#include <mutex>
+
+#define FILE_NUMS 1024
+
+static std::mutex mtx;
+static std::map<std::string, std::string> key_detect_threads;
+static char key_detect_threads_bool[FILE_NUMS] = {0};
 
 // 增加一个设备
 void add_event_id(std::string event_id) {
