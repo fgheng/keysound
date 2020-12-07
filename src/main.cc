@@ -14,14 +14,13 @@ extern "C" {
 
 int main(int argc, char *argv[])
 {
-    Audio audio("./sources/paino", VARIETY);
+    Audio audio("./sources/piano");
     // Audio audio("./sources/keyany.wav", SOLE);
     Mixer mixer(audio.get_max_len()*2);
 
     std::thread th(device_detect, &audio, &mixer);
     th.detach();
 
-    // play(mixer);
     play(mixer, audio.get_fmt_size(), audio.get_channels(),
             audio.get_sample_rate(), audio.get_bits_per_sample());
 
