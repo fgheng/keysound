@@ -5,18 +5,26 @@
 #include <memory>
 #include <string>
 
+extern "C" {
+#include <sys/stat.h>
+}
 
-// type = VARIETY多样表示钢琴，也就是str是一个目录
-// type = SOLE单一表示所有的按键使用一个声音，也就是str是一个文件
-Audio::Audio(std::string str, int type):max_len(0), type(type) {
-    init_value(str, type);
-    if (type == VARIETY) {
-        for (int i = 0; i < 128; i++) {
+
+Audio::Audio(const std::string str):max_len(0) {
+
+    // 默认非dir即file
+    struct stat s;
+    stat(str.c_str(), &s);
+    is_dir = S_ISDIR(s.st_mode);
+
+    init_value(str);
+    if (is_dir) {
+        for (int i = 0; i < 256; i++) {
             read_wav(str + "/" + std::to_string(i) + ".wav", datas[i]);
         }
-    } else if (type == SOLE) {
+    } else {
         read_wav(str, datas[0]);
-        for (int i = 1; i < 128; i++) {
+        for (int i = 1; i < 256; i++) {
             datas[i].data = datas[0].data;
             datas[i].len = datas[0].len;
             datas[i].bits_per_sample = datas[0].bits_per_sample;
@@ -24,16 +32,22 @@ Audio::Audio(std::string str, int type):max_len(0), type(type) {
     }
 }
 
-Audio::Audio(std::string str, int type, uint16_t channels,
-    uint32_t sample_rate, uint16_t bits_per_sample): max_len(0), type(type),
+Audio::Audio(const std::string str, uint16_t channels,
+    uint32_t sample_rate, uint16_t bits_per_sample): max_len(0),
     channels(channels), sample_rate(sample_rate), bits_per_sample(bits_per_sample) {
-    if (type == VARIETY) {
-        for (int i = 0; i < 128; i++) {
+
+    // 默认非dir即file
+    struct stat s;
+    stat(str.c_str(), &s);
+    is_dir = S_ISDIR(s.st_mode);
+
+    if (is_dir) {
+        for (int i = 0; i < 256; i++) {
             read_wav(str + "/" + std::to_string(i) + ".wav", datas[i]);
         }
-    } else if (type == SOLE) {
+    } else {
         read_wav(str, datas[0]);
-        for (int i = 1; i < 128; i++) {
+        for (int i = 1; i < 256; i++) {
             datas[i].data = datas[0].data;
             datas[i].len = datas[0].len;
             datas[i].bits_per_sample = datas[0].bits_per_sample;
@@ -41,8 +55,8 @@ Audio::Audio(std::string str, int type, uint16_t channels,
     }
 }
 
-void Audio::init_value(const std::string &str, int type) {
-    if (type == VARIETY) {
+void Audio::init_value(const std::string &str) {
+    if (is_dir) {
         for (int i = 0; i < 128; i++) {
             std::string file = str + "/" + std::to_string(i) + ".wav";
             if (file_exists(file)) {
@@ -113,10 +127,10 @@ WAV_DATA Audio::get_wav_by_code(uint16_t code) {
 
 
 Audio::~Audio() {
-    if (type == VARIETY)
-        for (int i = 0; i < 128; i++) {
+    if (is_dir)
+        for (int i = 0; i < 256; i++) {
             if (datas[i].data) delete [] datas[i].data;
         }
     else
-        delete [] datas[0].data;
+        if (datas[0].data) delete [] datas[0].data;
 }
