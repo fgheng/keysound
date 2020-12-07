@@ -3,6 +3,7 @@
 
 #include "utils.hpp"
 #include <memory>
+#include <string>
 
 extern "C" {
 #include <sys/stat.h>
@@ -86,7 +87,7 @@ private:
     // 据说stat判断文件是否存在最快
     bool file_exists(const std::string &file) const {
         struct stat buffer;
-        return (stat (file.c_str(), &buffer) == 0);
+        return (stat(file.c_str(), &buffer) == 0);
     }
 };
 
