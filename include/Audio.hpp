@@ -2,18 +2,17 @@
 #define __AUDIO__
 
 #include "utils.hpp"
-#include <SDL2/SDL_audio.h>
 #include <memory>
 
 extern "C" {
 #include <sys/stat.h>
+#include <SDL2/SDL_audio.h>
 #include <bits/stdint-uintn.h>
 }
 
 // 多样与单一
-#define VARIETY 1
-#define SOLE 2
-
+// #define VARIETY 1
+// #define SOLE 2
 
 #pragma pack(push, 1)
 typedef struct {
@@ -46,9 +45,9 @@ typedef struct {
 // 需要统一一下这个wav文件头，是每个音频一个呢还是统一用一个
 class Audio {
 public:
-    Audio(std::string sources_dir, int type);
-    Audio(std::string sources_dir, int type,
-            uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample);
+    Audio(const std::string str);
+    Audio(const std::string str, uint16_t channels,
+            uint32_t sample_rate, uint16_t bits_per_sample);
 
     Audio(const Audio &) = delete;
     Audio(Audio &&) = delete;
@@ -70,9 +69,10 @@ public:
 
 private:
     WAVE_HEADER wav_header;
-    WAV_DATA datas[128];
+    WAV_DATA datas[256];
 
-    int type;
+    // int type;
+    bool is_dir;
 
     // 最长的音频的长度
     uint32_t max_len;
@@ -80,12 +80,12 @@ private:
     uint32_t sample_rate;
     uint16_t bits_per_sample;
 
-    void init_value(const std::string &, int);
+    void init_value(const std::string &);
     // 读取wav文件
     void read_wav(const std::string&, WAV_DATA&);
 
     // 据说stat判断文件是否存在最快
-    bool file_exists (const std::string& file) {
+    bool file_exists(const std::string& file) const {
         struct stat buffer;
         return (stat (file.c_str(), &buffer) == 0);
     }
