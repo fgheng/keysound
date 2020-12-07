@@ -213,8 +213,8 @@ int16_t Mixer::mix_int16(int16_t A, int16_t B) {
     int32_t B1 = static_cast<int32_t>(B);
     int32_t C = A1 + B1 - (A1 * B1 >> 0x10);
 
-    if (C > 32767) C = 32760;
-    else if (C < -32768) C = -32760;
+    if (C > 32767) C = 32750;
+    else if (C < -32768) C = -32750;
 
     return static_cast<int16_t>(C);
 }
