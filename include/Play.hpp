@@ -9,13 +9,16 @@
 // #define __SDL_CALL_BACK__
 
 #ifdef __USE_ALSA__
-extern void play(Mixer &, uint32_t fmt_size, uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample);
+extern void play(Mixer &, uint16_t frame_size, uint32_t fmt_size,
+        uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample);
 #endif
 #ifdef __USE_PULSE__
-extern void play(Mixer &, uint32_t fmt_size, uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample);
+extern void play(Mixer &, uint16_t frame_size, uint32_t fmt_size,
+        uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample);
 #endif
 #ifdef __USE_SDL__
-extern void play(Mixer &, uint32_t fmt_size, uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample);
+extern void play(Mixer &, uint16_t frame_size, uint32_t fmt_size,
+        uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample);
 #endif
 
 #endif
