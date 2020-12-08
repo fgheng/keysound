@@ -23,7 +23,8 @@ static void sdl_callback(void *userdata, uint8_t *stream, int len) {
 }
 #endif
 
-void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample) {
+void play(Mixer &mixer, uint16_t frame_num, uint32_t fmt_size, uint16_t channels,
+        uint32_t sample_rate, uint16_t bits_per_sample) {
     uint32_t sleep_time; // 播放一组buffer所需的时间，ms
     SDL_AudioDeviceID dev;
     SDL_AudioSpec spec;
@@ -49,7 +50,7 @@ void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_ra
     spec.channels = channels;
     // 缓冲区大小，单位帧
     // 帧frame的数量，每个帧的字节数量=通道*bits_per_sample/8
-    spec.samples = 2048;
+    spec.samples = frame_num;
     spec.size = spec.samples * channels * bits_per_sample / 8; // 缓冲区大小，单位字节
 
 #ifdef __SDL_CALL_BACK__
@@ -218,7 +219,8 @@ static int alsa_init(uint32_t fmt_size, uint16_t channels,
     // usleep(sleep_time);
 // }
 
-void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample) {
+void play(Mixer &mixer, uint16_t frame_num, uint32_t fmt_size, uint16_t channels,
+        uint32_t sample_rate, uint16_t bits_per_sample) {
 
     int ret = alsa_init(fmt_size, channels, sample_rate, bits_per_sample);
     if (ret < 0) {
@@ -256,7 +258,7 @@ extern "C" {
 #include <pulse/simple.h>
 }
 
-void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels,
+void play(Mixer &mixer, uint16_t frame_num, uint32_t fmt_size, uint16_t channels,
         uint32_t sample_rate, uint16_t bits_per_sample) {
 
     pa_simple *s;
@@ -293,8 +295,6 @@ void play(Mixer &mixer, uint32_t fmt_size, uint16_t channels,
         return;
     }
 
-    // frame的数量
-    uint16_t frame_num = 2048;
     // 每个frame拥有的字节数
     uint16_t frame_bytes = channels * bits_per_sample / 8;
     // 一个buffer持续的时间
