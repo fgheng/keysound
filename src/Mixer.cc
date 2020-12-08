@@ -77,11 +77,8 @@ void Mixer::mix8(uint8_t *buf, uint32_t size) {
 }
 
 void Mixer::mix16(uint8_t *buf, uint32_t size) {
-    // 16位的要变成shot进行混音
-    // 保存的时候要拆开保存，还要交换下位置???
 
-    // 传入的buffer比较大，
-    // 超过了剩余的内存
+    // 传入的buffer比较大， 超过了剩余的内存
     if (buffer_end - pos < size) {
         mtx.lock();
         for (int i = 0; i < (buffer_end-pos) / 2; i++) {
@@ -191,11 +188,11 @@ void Mixer::get_mix(uint8_t *buf, uint32_t size) {
     mtx.unlock();
 }
 
-uint8_t Mixer::mix_uint8(uint8_t A, uint8_t B) {
+inline uint8_t Mixer::mix_uint8(uint8_t A, uint8_t B) {
     return 0;
 }
 
-int8_t Mixer::mix_int8(int8_t A, int8_t B) {
+inline int8_t Mixer::mix_int8(int8_t A, int8_t B) {
     int16_t A1 = static_cast<int16_t>(A);
     int16_t B1 = static_cast<int16_t>(B);
     int16_t C = A1 + B1 - (A1 * B1 >> 0x08);
@@ -206,7 +203,11 @@ int8_t Mixer::mix_int8(int8_t A, int8_t B) {
     return static_cast<int8_t>(C);
 }
 
-int16_t Mixer::mix_int16(int16_t A, int16_t B) {
+inline int16_t Mixer::mix_int16(int16_t A, int16_t B) {
+    // 应该改为内联汇编，使用汇编判断溢出位
+    // uint16_t C = A + B
+    // 如果溢出，C = xxx
+    // 该函数应该改为右值引用
 
     // 参考http://blog.sina.com.cn/s/blog_4d61a7570101arsr.html
     int32_t A1 = static_cast<int32_t>(A);
@@ -219,7 +220,7 @@ int16_t Mixer::mix_int16(int16_t A, int16_t B) {
     return static_cast<int16_t>(C);
 }
 
-int32_t Mixer::mix_int32(int32_t A, int32_t B) {
+inline int32_t Mixer::mix_int32(int32_t A, int32_t B) {
     int64_t A1 = static_cast<int64_t>(A);
     int64_t B1 = static_cast<int64_t>(B);
     int64_t C = A1 + B1 - (A1 * B1 >> 0x20);
