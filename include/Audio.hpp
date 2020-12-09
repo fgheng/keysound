@@ -39,6 +39,8 @@ typedef struct {
 typedef struct {
     uint8_t *data;
     uint32_t len;
+    uint16_t bits_per_sample;
+    uint16_t place_hold;
 }WAV_DATA;
 
 // 需要统一一下这个wav文件头，是每个音频一个呢还是统一用一个
