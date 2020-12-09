@@ -51,7 +51,8 @@ void play(Mixer &mixer, uint16_t frame_num, uint32_t fmt_size, uint16_t channels
     // 缓冲区大小，单位帧
     // 帧frame的数量，每个帧的字节数量=通道*bits_per_sample/8
     spec.samples = frame_num;
-    spec.size = spec.samples * channels * bits_per_sample / 8; // 缓冲区大小，单位字节
+    // 缓冲区大小，单位字节，如果没有会SDL会自动计算
+    spec.size = spec.samples * channels * bits_per_sample / 8;
 
 #ifdef __SDL_CALL_BACK__
     spec.callback = sdl_callback;
