@@ -1,5 +1,6 @@
 #include "utils.hpp"
 #include "Audio.hpp"
+#include "keycode.hpp"
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -17,17 +18,21 @@ Audio::Audio(const std::string str):max_len(0) {
     stat(str.c_str(), &s);
     is_dir = S_ISDIR(s.st_mode);
 
+    // 初始化头
     init_value(str);
     if (is_dir) {
         for (int i = 0; i < 256; i++) {
-            read_wav(str + "/" + std::to_string(i) + ".wav", datas[i]);
+            if (read_wav(str + "/" + KEYS[i] + ".wav", wav_datas[i])) {
+                datas[i] = i;
+            }
+            else {
+                datas[i] = 0;
+            }
         }
     } else {
-        read_wav(str, datas[0]);
+        read_wav(str, wav_datas[0]);
         for (int i = 1; i < 256; i++) {
-            datas[i].data = datas[0].data;
-            datas[i].len = datas[0].len;
-            datas[i].bits_per_sample = datas[0].bits_per_sample;
+            datas[i] = 0;
         }
     }
 }
@@ -43,22 +48,21 @@ Audio::Audio(const std::string str, uint16_t channels,
 
     if (is_dir) {
         for (int i = 0; i < 256; i++) {
-            read_wav(str + "/" + std::to_string(i) + ".wav", datas[i]);
+            if (read_wav(str + "/" + KEYS[i] + ".wav", wav_datas[i])) datas[i] = i;
+            else datas[i] = 0;
         }
     } else {
-        read_wav(str, datas[0]);
+        read_wav(str, wav_datas[0]);
         for (int i = 1; i < 256; i++) {
-            datas[i].data = datas[0].data;
-            datas[i].len = datas[0].len;
-            datas[i].bits_per_sample = datas[0].bits_per_sample;
+            datas[i] = 0;
         }
     }
 }
 
 void Audio::init_value(const std::string &str) {
     if (is_dir) {
-        for (int i = 0; i < 128; i++) {
-            std::string file = str + "/" + std::to_string(i) + ".wav";
+        for (int i = 0; i < 256; i++) {
+            std::string file = str + "/" + KEYS[i] + ".wav";
             if (file_exists(file)) {
                 std::ifstream f(file);
                 if (f.is_open()) {
@@ -87,12 +91,12 @@ void Audio::init_value(const std::string &str) {
     }
 }
 
-void Audio::read_wav(const std::string &file, WAV_DATA& wav_data) {
+bool Audio::read_wav(const std::string &file, WAV_DATA& wav_data) {
     wav_data.data = nullptr;
     wav_data.len = 0;
     wav_data.bits_per_sample = 0;
 
-    if (!file_exists(file)) return;
+    if (!file_exists(file)) return false;
 
     WAVE_HEADER header;
     std::ifstream f(file);
@@ -112,25 +116,26 @@ void Audio::read_wav(const std::string &file, WAV_DATA& wav_data) {
 
             // 更新最大值
             if (wav_data.len > max_len) max_len = wav_data.len;
+        } else {
+            f.close();
+            return false;
         }
     }
 
     f.close();
+    return true;
 }
 
 WAV_DATA Audio::get_wav_by_code(uint16_t code) {
-    if (code >= 128) {
+    if (code > 255) {
         return {nullptr, 0};
     }
-    return datas[code];
+    return wav_datas[datas[code]];
 }
 
 
 Audio::~Audio() {
-    if (is_dir)
-        for (int i = 0; i < 256; i++) {
-            if (datas[i].data) delete [] datas[i].data;
-        }
-    else
-        if (datas[0].data) delete [] datas[0].data;
+    for (int i = 0; i < 256; i++) {
+        if (wav_datas[i].data) delete [] wav_datas[i].data;
+    }
 }
