@@ -39,8 +39,6 @@ typedef struct {
 typedef struct {
     uint8_t *data;
     uint32_t len;
-    uint16_t bits_per_sample;
-    uint16_t place_hold;
 }WAV_DATA;
 
 // 需要统一一下这个wav文件头，是每个音频一个呢还是统一用一个
@@ -64,13 +62,18 @@ public:
     uint16_t get_channels() const {return channels;}
     uint32_t get_sample_rate() const {return sample_rate;}
     uint16_t get_bits_per_sample() const {return bits_per_sample;}
+    // 一个frame有多少字节
+    uint16_t get_frame_size() const {return channels * bits_per_sample / 8;}
 
     uint32_t get_max_len() const {return max_len;};
     WAVE_HEADER get_wav_header() const {return wav_header;};
 
 private:
     WAVE_HEADER wav_header;
-    WAV_DATA datas[256];
+    // 存储音乐
+    WAV_DATA wav_datas[256];
+    // 键盘编码对应wavdatas中的哪一个
+    uint16_t datas[256];
 
     bool is_dir;
 
