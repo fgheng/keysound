@@ -90,6 +90,9 @@ void Audio::init(const std::string &str) {
             std::cout << "read " << str << "error" << std::endl;
             exit(EXIT_FAILURE);
         }
+    } else {
+        std::cout << "not json or wav or dir" << std::endl;
+        exit(EXIT_FAILURE);
     }
 }
 
