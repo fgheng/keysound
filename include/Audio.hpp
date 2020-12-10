@@ -44,6 +44,7 @@ typedef struct WAV_DATA {
 // 需要统一一下这个wav文件头，是每个音频一个呢还是统一用一个
 class Audio {
 public:
+    Audio(const std::string str, int flat);
     Audio(const std::string str);
     Audio(const std::string str, uint16_t channels,
             uint32_t sample_rate, uint16_t bits_per_sample);
@@ -65,13 +66,13 @@ public:
     uint16_t get_frame_size() const {return channels * bits_per_sample / 8;}
 
     uint32_t get_max_len() const {return max_len;};
-    // WAVE_HEADER get_header() const {return wav_header;};
 
 private:
     // 存储音乐
     WAV_DATA wav_datas[256];
     // 键盘编码对应wavdatas中的哪一个
     uint16_t datas[256] = {0};
+    // 通用属性是否已经初始化
     bool init_property;
 
     // 最长的音频的长度
@@ -83,6 +84,11 @@ private:
     // 读取wav文件
     bool read_wav(const std::string &, WAV_DATA &);
     void init(const std::string &);
+
+    void init(const std::string &, int);
+    void from_dir(const std::string &str);
+    void from_json(const std::string &str);
+    void from_file(const std::string &str);
 
     // 据说stat判断文件是否存在最快
     bool file_exists(const std::string &file) const {
