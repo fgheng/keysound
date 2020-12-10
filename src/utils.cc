@@ -71,7 +71,7 @@ bool is_event_id_lager_than_FILE_NUMS(int event_id) {
     else return false;
 }
 
-void clear_all_key_detect() {
+void clear_all_key_devices() {
     mtx.lock();
     std::memset(key_detect_threads_bool, 0, FILE_NUMS);
     mtx.unlock();
