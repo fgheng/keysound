@@ -51,21 +51,21 @@ void Audio::init(const std::string &str, int flag) {
                 err = "please use directory";
                 goto init_failed;
             }
-            break;
+            return;
         case 'f':
             if (is_wav(str)) from_file(str);
             else {
                 err = "please write a wav file";
                 goto init_failed;
             }
-            break;
+            return;
         case 'j':
             if (is_json(str)) from_json(str);
             else {
                 err = "please use a json file";
                 goto init_failed;
             }
-            break;
+            return;
         default:
             goto init_failed;
             break;
@@ -187,8 +187,7 @@ bool Audio::read_wav(const std::string &file, WAV_DATA& wav_data) {
 
         f.close();
         return true;
-
-    } else goto failed;
+    } // else goto failed;
 
 failed:
     f.close();
