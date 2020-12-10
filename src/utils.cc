@@ -77,3 +77,13 @@ void clear_all_key_devices() {
     key_detects.clear();
     mtx.unlock();
 }
+
+bool little_end() {
+    uint16_t num = 0x1122;
+    uint8_t *c = (uint8_t *)&num;
+    if (*c == 0x22) {
+        return true;
+    } else {
+        return false;
+    }
+}
