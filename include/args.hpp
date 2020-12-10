@@ -15,6 +15,7 @@ extern "C" {
 extern char *optarg;
 
 static struct arguments {
+    int flag = 0;
     bool daemon = false;
     std::string json = "";
     std::string wav_file = "";
@@ -77,24 +78,18 @@ static void process_command_line_arguments(int argc, char** argv) {
         switch (c) {
             case 'd':
                 args.dir = std::string(optarg);
-                if (args.json != "" || args.wav_file != "") {
-                    usage();
-                    exit(EXIT_FAILURE);
-                }
+                if (args.flag != 0) goto failed;
+                else args.flag = 'd';
                 break;
             case 'f':
                 args.wav_file = std::string(optarg);
-                if (args.json != "" || args.dir != "") {
-                    usage();
-                    exit(EXIT_FAILURE);
-                }
+                if (args.flag != 0) goto failed;
+                else args.flag = 'f';
                 break;
             case 'j':
                 args.json = std::string(optarg);
-                if (args.dir != "" || args.wav_file != "") {
-                    usage();
-                    exit(EXIT_FAILURE);
-                }
+                if (args.flag != 0) goto failed;
+                else args.flag = 'j';
                 break;
             case 'l':
                 args.log = std::string(optarg);
@@ -105,14 +100,19 @@ static void process_command_line_arguments(int argc, char** argv) {
             case 'h':
             case '?':
             default:
-                usage();
-                exit(EXIT_FAILURE);
+                goto failed;
                 break;
         }
     }
 
+    if (args.flag == 0) goto failed;
+
     while (optind < argc)
         std::cout <<  "Non-option argument " << argv[optind++] << std::endl;
+
+failed:
+    usage();
+    exit(EXIT_FAILURE);
 }
 
 #endif
