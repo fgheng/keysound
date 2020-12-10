@@ -43,18 +43,28 @@ void Audio::init(const std::string &str) {
 }
 
 void Audio::init(const std::string &str, int flag) {
+    std::string err;
     switch (flag) {
         case 'd':
             if (is_dir(str)) from_dir(str);
-            else goto init_failed;
+            else {
+                err = "please use directory";
+                goto init_failed;
+            }
             break;
         case 'f':
             if (is_wav(str)) from_file(str);
-            else goto init_failed;
+            else {
+                err = "please write a wav file";
+                goto init_failed;
+            }
             break;
         case 'j':
             if (is_json(str)) from_json(str);
-            else goto init_failed;
+            else {
+                err = "please use a json file";
+                goto init_failed;
+            }
             break;
         default:
             goto init_failed;
@@ -62,7 +72,7 @@ void Audio::init(const std::string &str, int flag) {
     }
 
 init_failed:
-    std::cout << "not json or wav or dir" << std::endl;
+    std::cout << err << std::endl;
     exit(EXIT_FAILURE);
 }
 
