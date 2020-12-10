@@ -111,7 +111,7 @@ bool Audio::read_wav(const std::string &file, WAV_DATA& wav_data) {
         f.read((char *)&header, sizeof(WAVE_HEADER));
 
         // 不是wav文件
-        if (!is_wav(header.riff_id, header.riff_type)) goto failed;
+        if (!tag_is_right(header.riff_id, header.riff_type)) goto failed;
 
         if (header.fmt_audio_format == 1) {
             if (!init_property) {
@@ -161,4 +161,23 @@ Audio::~Audio() {
     for (int i = 0; i < 256; i++) {
         if (wav_datas[i].data) delete [] wav_datas[i].data;
     }
+}
+
+bool Audio::is_wav(const std::string &str) const {
+    WAVE_HEADER header;
+    std::ifstream f(str);
+
+    if (f.is_open()) {
+        f.read((char *)&header, sizeof(WAVE_HEADER));
+        f.close();
+        return tag_is_right(header.riff_id, header.riff_type);
+    } else {
+        f.close();
+        return false;
+    }
+}
+
+bool Audio::tag_is_right(const uint8_t *riff_id, const uint8_t *riff_type) const {
+    return (std::strcmp((char *)riff_id, "RIFF") == 0) &&
+            (std::strcmp((char *)riff_type, "WAVE"));
 }
