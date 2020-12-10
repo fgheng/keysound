@@ -130,6 +130,10 @@ void Audio::from_json(const std::string &str) {
                 datas[KEYS[i].second] = 0;
             }
         }
+    } else {
+        std::cout << "you must add a dir item in json" << std::endl;
+        cJSON_Delete(root);
+        exit(EXIT_FAILURE);
     }
     cJSON_Delete(root);
 }
