@@ -12,10 +12,6 @@ extern "C" {
 #include <bits/stdint-uintn.h>
 }
 
-// 多样与单一
-// #define VARIETY 1
-// #define SOLE 2
-
 #pragma pack(push, 1)
 typedef struct {
     // RIFF chuck
@@ -71,15 +67,11 @@ public:
     // WAVE_HEADER get_header() const {return wav_header;};
 
 private:
-    // WAVE_HEADER wav_header;
     // 存储音乐
     WAV_DATA wav_datas[256];
     // 键盘编码对应wavdatas中的哪一个
     uint16_t datas[256] = {0};
     bool init_property;
-
-    cJSON *root;
-    std::string wav_dir;
 
     // 最长的音频的长度
     uint32_t max_len;
@@ -87,9 +79,9 @@ private:
     uint32_t sample_rate;
     uint16_t bits_per_sample;
 
-    // void init_value(const std::string &, bool);
     // 读取wav文件
     bool read_wav(const std::string &, WAV_DATA &);
+    void init(const std::string &);
 
     // 据说stat判断文件是否存在最快
     bool file_exists(const std::string &file) const {
