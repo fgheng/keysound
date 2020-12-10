@@ -22,9 +22,6 @@ public:
     void get_mix(uint8_t *, uint32_t);
 
 private:
-    // 是否是小端模式
-    bool little_end;
-
     std::mutex mtx;
     uint32_t buffer_len;
     uint8_t *buffer;
@@ -39,18 +36,6 @@ private:
     inline int8_t mix_int8(int8_t, int8_t);
     inline int16_t mix_int16(int16_t, int16_t);
     inline int32_t mix_int32(int32_t, int32_t);
-
-    // 系统大小端检测，暂时先不使用，假定系统都是小端字节序
-    void detect_mode() {
-        // 判断系统的大小端
-        uint16_t num = 0x1122;
-        uint8_t *c = (uint8_t *)&num;
-        if (*c == 0x22) {
-            little_end = true;
-        } else {
-            little_end = false;
-        }
-    }
 };
 
 #endif
