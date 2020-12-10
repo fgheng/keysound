@@ -110,6 +110,12 @@ bool Audio::read_wav(const std::string &file, WAV_DATA& wav_data) {
     if (f.is_open()) {
         f.read((char *)&header, sizeof(WAVE_HEADER));
 
+        // 不是wav文件
+        if (!is_wav(header.riff_id, header.riff_type)) {
+            f.close();
+            return false;
+        }
+
         if (header.fmt_audio_format == 1) {
             if (!init_property) {
                 channels = header.fmt_channels;
