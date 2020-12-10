@@ -9,27 +9,27 @@
 #define FILE_NUMS 1024
 
 static std::mutex mtx;
-static std::map<std::string, std::string> key_detect_threads;
-static char key_detect_threads_bool[FILE_NUMS] = {0};
+static std::map<std::string, std::string> key_detects;
+static char key_detects_bool[FILE_NUMS] = {0};
 
 // 增加一个设备
 void add_event_id(std::string event_id) {
     mtx.lock();
-    key_detect_threads[event_id] = event_id;
+    key_detects[event_id] = event_id;
     mtx.unlock();
 }
 
 // 删除一个设备
 void del_event_id(std::string event_id) {
     mtx.lock();
-    key_detect_threads.erase(event_id);
+    key_detects.erase(event_id);
     mtx.unlock();
 
 }
 
 // 判断设备是否已经存在
 bool event_id_exists(std::string event_id) {
-    if (key_detect_threads.count(event_id) > 0) return true;
+    if (key_detects.count(event_id) > 0) return true;
     else return false;
 }
 
@@ -41,7 +41,7 @@ void add_event_id(int event_id) {
         return;
     }
     mtx.lock();
-    key_detect_threads_bool[event_id] = true;
+    key_detects_bool[event_id] = true;
     mtx.unlock();
 }
 
@@ -52,9 +52,8 @@ void del_event_id(int event_id) {
         return;
     }
     mtx.lock();
-    key_detect_threads_bool[event_id] = false;
+    key_detects_bool[event_id] = false;
     mtx.unlock();
-
 }
 
 // 判断设备是否已经存在
@@ -63,7 +62,7 @@ bool event_id_exists(int event_id) {
         std::cout << "file is lager" << std::endl;
         return false;
     }
-    return key_detect_threads_bool[event_id];
+    return key_detects_bool[event_id];
 }
 
 bool is_event_id_lager_than_FILE_NUMS(int event_id) {
@@ -73,6 +72,7 @@ bool is_event_id_lager_than_FILE_NUMS(int event_id) {
 
 void clear_all_key_devices() {
     mtx.lock();
-    std::memset(key_detect_threads_bool, 0, FILE_NUMS);
+    std::memset(key_detects_bool, 0, FILE_NUMS);
+    key_detects.erase(key_detects.begin(), key_detects.end());
     mtx.unlock();
 }
