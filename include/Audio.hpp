@@ -2,6 +2,7 @@
 #define __AUDIO__
 
 #include "utils.hpp"
+#include "cJSON.h"
 #include <memory>
 #include <string>
 
@@ -36,11 +37,11 @@ typedef struct {
 } WAVE_HEADER;
 #pragma pack(pop)
 
-typedef struct {
-    uint8_t *data;
-    uint32_t len;
-    uint16_t bits_per_sample;
-    uint16_t place_hold;
+typedef struct WAV_DATA {
+    uint8_t *data = nullptr;
+    uint32_t len = 0;
+    uint16_t bits_per_sample = 0;
+    uint16_t place_hold = 0;
 }WAV_DATA;
 
 // 需要统一一下这个wav文件头，是每个音频一个呢还是统一用一个
@@ -60,7 +61,6 @@ public:
     ~Audio();
 
     // 获取一些通用的信息
-    uint32_t get_fmt_size() const {return wav_header.fmt_size;};
     uint16_t get_channels() const {return channels;}
     uint32_t get_sample_rate() const {return sample_rate;}
     uint16_t get_bits_per_sample() const {return bits_per_sample;}
@@ -68,16 +68,18 @@ public:
     uint16_t get_frame_size() const {return channels * bits_per_sample / 8;}
 
     uint32_t get_max_len() const {return max_len;};
-    WAVE_HEADER get_wav_header() const {return wav_header;};
+    // WAVE_HEADER get_header() const {return wav_header;};
 
 private:
-    WAVE_HEADER wav_header;
+    // WAVE_HEADER wav_header;
     // 存储音乐
     WAV_DATA wav_datas[256];
     // 键盘编码对应wavdatas中的哪一个
-    uint16_t datas[256];
+    uint16_t datas[256] = {0};
+    bool init_property;
 
-    bool is_dir;
+    cJSON *root;
+    std::string wav_dir;
 
     // 最长的音频的长度
     uint32_t max_len;
@@ -85,14 +87,28 @@ private:
     uint32_t sample_rate;
     uint16_t bits_per_sample;
 
-    void init_value(const std::string &);
+    // void init_value(const std::string &, bool);
     // 读取wav文件
-    void read_wav(const std::string &, WAV_DATA &);
+    bool read_wav(const std::string &, WAV_DATA &);
 
     // 据说stat判断文件是否存在最快
     bool file_exists(const std::string &file) const {
         struct stat buffer;
         return (stat(file.c_str(), &buffer) == 0);
+    }
+
+    bool is_dir(const std::string &str) const {
+        struct stat s;
+        stat(str.c_str(), &s);
+        return S_ISDIR(s.st_mode);
+    }
+
+    bool is_json(const std::string &str) const {
+        return str.find(".json") != std::string::npos;
+    }
+
+    bool is_wav(const std::string &str) const {
+        return str.find(".wav") != std::string::npos;
     }
 };
 
