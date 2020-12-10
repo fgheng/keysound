@@ -32,71 +32,10 @@ Audio::Audio(const std::string str, uint16_t channels,
 void Audio::init(const std::string &str) {
     if (is_dir(str)) {
         from_dir(str);
-        // bool has_file = false;
-        // // 目录
-        // for (int i = 0; i < 256; i++) {
-            // if (wav_datas[i].data) continue;
-            // if (read_wav(str + "/" + KEYS[i].first + ".wav", wav_datas[i])) {
-                // has_file = true;
-                // datas[KEYS[i].second] = i;
-            // }
-            // else {
-                // datas[KEYS[i].second] = 0;
-            // }
-        // }
-
-        // if (!has_file) {
-            // std::cout << "there's no file exist in " << str << std::endl;
-            // exit(EXIT_FAILURE);
-        // }
     } else if (is_json(str)) {
         from_json(str);
-        // // json
-        // std::ifstream f(str);
-        // std::stringstream json_buf;
-        // json_buf << f.rdbuf();
-        // f.close();
-
-        // cJSON *root = cJSON_Parse(json_buf.str().c_str());
-
-        // if (!root) {
-            // std::cout << "parse json failed" << std::endl;
-            // exit(EXIT_FAILURE);
-        // }
-
-        // cJSON *item;
-        // item = cJSON_GetObjectItem(root, "dir");
-        // if (item) {
-            // std::string wav_dir = std::string(item->valuestring);
-
-            // for (int i = 0; i < 256; i++) {
-                // item = cJSON_GetObjectItem(root, KEYS[i].first.c_str());
-
-                // if (!item) continue;
-
-                // std::string wav_name = std::string(item->valuestring);
-
-                // if (wav_datas[i].data) continue;
-
-                // if (read_wav(wav_dir + "/" + wav_name, wav_datas[i])) {
-                    // datas[KEYS[i].second] = i;
-                // } else {
-                    // datas[KEYS[i].second] = 0;
-                // }
-            // }
-        // }
-        // cJSON_Delete(root);
     } else if (is_wav(str)) {
         from_file(str);
-        // // 单独的音乐文件
-        // if (read_wav(str, wav_datas[0])) {
-            // for (int i = 1; i < 256; i++) {
-                // datas[i] = 0;
-            // }
-        // } else {
-            // std::cout << "read " << str << "error" << std::endl;
-            // exit(EXIT_FAILURE);
-        // }
     } else {
         std::cout << "not json or wav or dir" << std::endl;
         exit(EXIT_FAILURE);
@@ -106,94 +45,94 @@ void Audio::init(const std::string &str) {
 void Audio::init(const std::string &str, int flag) {
     switch (flag) {
         case 'd':
-            from_dir(str);
+            if (is_dir(str)) from_dir(str);
+            else goto init_failed;
             break;
         case 'f':
-            from_file(str);
+            if (is_wav(str)) from_file(str);
+            else goto init_failed;
             break;
         case 'j':
-            from_json(str);
+            if (is_json(str)) from_json(str);
+            else goto init_failed;
             break;
         default:
-            std::cout << "not json or wav or dir" << std::endl;
-            exit(EXIT_FAILURE);
+            goto init_failed;
             break;
     }
+
+init_failed:
+    std::cout << "not json or wav or dir" << std::endl;
+    exit(EXIT_FAILURE);
 }
 
 void Audio::from_dir(const std::string &str) {
-    if (is_dir(str)) {
-        bool has_file = false;
-        // 目录
-        for (int i = 0; i < 256; i++) {
-            if (wav_datas[i].data) continue;
-            if (read_wav(str + "/" + KEYS[i].first + ".wav", wav_datas[i])) {
-                has_file = true;
-                datas[KEYS[i].second] = i;
-            }
-            else {
-                datas[KEYS[i].second] = 0;
-            }
+    bool has_file = false;
+    // 目录
+    for (int i = 0; i < 256; i++) {
+        if (wav_datas[i].data) continue;
+        if (read_wav(str + "/" + KEYS[i].first + ".wav", wav_datas[i])) {
+            has_file = true;
+            datas[KEYS[i].second] = i;
         }
+        else {
+            datas[KEYS[i].second] = 0;
+        }
+    }
 
-        if (!has_file) {
-            std::cout << "there's no file exist in " << str << std::endl;
-            exit(EXIT_FAILURE);
-        }
+    if (!has_file) {
+        std::cout << "there's no file exist in " << str << std::endl;
+        exit(EXIT_FAILURE);
     }
 }
 
 void Audio::from_json(const std::string &str) {
-    if (is_json(str)) {
-        // json
-        std::ifstream f(str);
-        std::stringstream json_buf;
-        json_buf << f.rdbuf();
-        f.close();
+    // json
+    std::ifstream f(str);
+    std::stringstream json_buf;
+    json_buf << f.rdbuf();
+    f.close();
 
-        cJSON *root = cJSON_Parse(json_buf.str().c_str());
+    cJSON *root = cJSON_Parse(json_buf.str().c_str());
 
-        if (!root) {
-            std::cout << "parse json failed" << std::endl;
-            exit(EXIT_FAILURE);
-        }
+    if (!root) {
+        std::cout << "parse json failed" << std::endl;
+        exit(EXIT_FAILURE);
+    }
 
-        cJSON *item;
-        item = cJSON_GetObjectItem(root, "dir");
-        if (item) {
-            std::string wav_dir = std::string(item->valuestring);
+    cJSON *item;
+    item = cJSON_GetObjectItem(root, "dir");
+    if (item) {
+        std::string wav_dir = std::string(item->valuestring);
 
-            for (int i = 0; i < 256; i++) {
-                item = cJSON_GetObjectItem(root, KEYS[i].first.c_str());
+        for (int i = 0; i < 256; i++) {
+            item = cJSON_GetObjectItem(root, KEYS[i].first.c_str());
 
-                if (!item) continue;
+            if (!item) continue;
 
-                std::string wav_name = std::string(item->valuestring);
+            std::string wav_name = std::string(item->valuestring);
 
-                if (wav_datas[i].data) continue;
+            if (wav_datas[i].data) continue;
 
-                if (read_wav(wav_dir + "/" + wav_name, wav_datas[i])) {
-                    datas[KEYS[i].second] = i;
-                } else {
-                    datas[KEYS[i].second] = 0;
-                }
+            if (read_wav(wav_dir + "/" + wav_name, wav_datas[i])) {
+                datas[KEYS[i].second] = i;
+            } else {
+                datas[KEYS[i].second] = 0;
             }
         }
-        cJSON_Delete(root);
     }
+    cJSON_Delete(root);
 }
 
 void Audio::from_file(const std::string &str) {
-    if (is_wav(str)) {
-        // 单独的音乐文件
-        if (read_wav(str, wav_datas[0])) {
-            for (int i = 1; i < 256; i++) {
-                datas[i] = 0;
-            }
-        } else {
-            std::cout << "read " << str << "error" << std::endl;
-            exit(EXIT_FAILURE);
+    // 单独的音乐文件
+    if (read_wav(str, wav_datas[0])) {
+        for (int i = 1; i < 256; i++) {
+            datas[i] = 0;
         }
+    } else {
+        std::cout << "read " << str << "error" << std::endl;
+        exit(EXIT_FAILURE);
     }
 }
 
