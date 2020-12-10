@@ -21,7 +21,7 @@ static struct arguments {
     std::string wav_file = "";
     std::string dir = "";
     std::string log = "";
-} args = {0};
+} args = {0, false, "", "", "", ""};
 
 static void process_command_line_arguments(int argc, char** argv) {
     if (argc <= 1) {
@@ -78,17 +78,25 @@ static void process_command_line_arguments(int argc, char** argv) {
         switch (c) {
             case 'd':
                 args.dir = std::string(optarg);
-                if (args.flag != 0) goto failed;
+                if (args.flag != 0) {
+                    usage();
+                    exit(EXIT_FAILURE);
+                }
                 else args.flag = 'd';
                 break;
             case 'f':
                 args.wav_file = std::string(optarg);
-                if (args.flag != 0) goto failed;
-                else args.flag = 'f';
+                if (args.flag != 0) {
+                    usage();
+                    exit(EXIT_FAILURE);
+                } else args.flag = 'f';
                 break;
             case 'j':
                 args.json = std::string(optarg);
-                if (args.flag != 0) goto failed;
+                if (args.flag != 0) {
+                    usage();
+                    exit(EXIT_FAILURE);
+                }
                 else args.flag = 'j';
                 break;
             case 'l':
@@ -100,19 +108,20 @@ static void process_command_line_arguments(int argc, char** argv) {
             case 'h':
             case '?':
             default:
-                goto failed;
+                usage();
+                exit(EXIT_FAILURE);
                 break;
         }
     }
 
-    if (args.flag == 0) goto failed;
+    if (args.flag == 0) {
+        usage();
+        exit(EXIT_FAILURE);
+    }
 
     while (optind < argc)
         std::cout <<  "Non-option argument " << argv[optind++] << std::endl;
 
-failed:
-    usage();
-    exit(EXIT_FAILURE);
 }
 
 #endif
