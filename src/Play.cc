@@ -23,8 +23,9 @@ static void sdl_callback(void *userdata, uint8_t *stream, int len) {
 }
 #endif
 
-void play(Mixer &mixer, uint16_t frame_num, uint32_t fmt_size, uint16_t channels,
+void play(Mixer &mixer, uint16_t frame_num, uint16_t channels,
         uint32_t sample_rate, uint16_t bits_per_sample) {
+
     uint32_t sleep_time; // 播放一组buffer所需的时间，ms
     SDL_AudioDeviceID dev;
     SDL_AudioSpec spec;
@@ -118,13 +119,11 @@ static snd_pcm_uframes_t frames;
 /**
  * @brief 初始化硬件
  *
- * @param fmt_size
  * @param channels 通道数量
  * @param sample_rate 采样率
  * @param bits_per_sample 每个样本点所需的bit数量
  */
-static int alsa_init(uint32_t fmt_size, uint16_t channels,
-        uint32_t sample_rate, uint16_t bits_per_sample) {
+static int alsa_init(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample) {
 
     int rc;
     snd_pcm_hw_params_t *gp_params; // 设置流的硬件参数
@@ -155,7 +154,7 @@ static int alsa_init(uint32_t fmt_size, uint16_t channels,
 
     // 设置格式
     snd_pcm_format_t format;
-    switch (fmt_size) {
+    switch (bits_per_sample) {
         case 8:
             format = SND_PCM_FORMAT_U8;
             break;
@@ -220,10 +219,10 @@ static int alsa_init(uint32_t fmt_size, uint16_t channels,
     // usleep(sleep_time);
 // }
 
-void play(Mixer &mixer, uint16_t frame_num, uint32_t fmt_size, uint16_t channels,
+void play(Mixer &mixer, uint16_t frame_num, uint16_t channels,
         uint32_t sample_rate, uint16_t bits_per_sample) {
 
-    int ret = alsa_init(fmt_size, channels, sample_rate, bits_per_sample);
+    int ret = alsa_init(channels, sample_rate, bits_per_sample);
     if (ret < 0) {
         std::cout << "error in play" << std::endl;
         return;
@@ -259,13 +258,13 @@ extern "C" {
 #include <pulse/simple.h>
 }
 
-void play(Mixer &mixer, uint16_t frame_num, uint32_t fmt_size, uint16_t channels,
+void play(Mixer &mixer, uint16_t frame_num, uint16_t channels,
         uint32_t sample_rate, uint16_t bits_per_sample) {
 
     pa_simple *s;
     pa_sample_spec ss;
 
-    switch (fmt_size) {
+    switch (bits_per_sample) {
         case 8:
             ss.format = PA_SAMPLE_U8;
             break;
