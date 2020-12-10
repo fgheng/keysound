@@ -186,6 +186,6 @@ void device_detect(Audio *audio, Mixer *mixer) {
     }
 
     std::cout << "停止监控" << std::endl;
-    clear_all_key_detect();
+    clear_all_key_devices();
     close(sock_fd);
 }
