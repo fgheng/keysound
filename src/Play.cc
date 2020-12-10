@@ -110,11 +110,8 @@ void play(Mixer &mixer, uint16_t frame_num, uint16_t channels,
 extern "C" {
 #include <alsa/asoundlib.h>
 #include <alsa/pcm.h>
+#include <alsa/error.h>
 }
-
-static snd_pcm_t * gp_handle;
-static uint32_t buffer_size;
-static snd_pcm_uframes_t frames;
 
 /**
  * @brief 初始化硬件
@@ -123,7 +120,8 @@ static snd_pcm_uframes_t frames;
  * @param sample_rate 采样率
  * @param bits_per_sample 每个样本点所需的bit数量
  */
-static int alsa_init(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample) {
+static int init_alsa(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample,
+        snd_pcm_t *&gp_handle, snd_pcm_uframes_t &frames) {
 
     int rc;
     snd_pcm_hw_params_t *gp_params; // 设置流的硬件参数
@@ -141,6 +139,7 @@ static int alsa_init(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_
     // 填充默认值
     rc = snd_pcm_hw_params_any(gp_handle, gp_params);
     if (rc < 0) {
+        snd_pcm_close(gp_handle);
         std::cout << "unable to fill it in with default values." << std::endl;
         return -1;
     }
@@ -148,6 +147,7 @@ static int alsa_init(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_
     // 交错模式
     rc = snd_pcm_hw_params_set_access(gp_handle, gp_params, SND_PCM_ACCESS_RW_INTERLEAVED);
     if (rc < 0) {
+        snd_pcm_close(gp_handle);
         std::cout << "unable set interleaved mode" << std::endl;
         return -1;
     }
@@ -173,6 +173,7 @@ static int alsa_init(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_
     }
     rc = snd_pcm_hw_params_set_format(gp_handle, gp_params, format);
     if (rc < 0) {
+        snd_pcm_close(gp_handle);
         std::cout << "unable to set format" << std::endl;
         return -1;
     }
@@ -180,6 +181,7 @@ static int alsa_init(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_
     // 设置通道
     rc = snd_pcm_hw_params_set_channels(gp_handle, gp_params, channels);
     if (rc < 0) {
+        snd_pcm_close(gp_handle);
         std::cout << "unable set channels" << std::endl;
         return -1;
     }
@@ -188,6 +190,7 @@ static int alsa_init(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_
     int dir;
     rc = snd_pcm_hw_params_set_rate_near(gp_handle, gp_params, &sample_rate, &dir);
     if (rc < 0) {
+        snd_pcm_close(gp_handle);
         std::cout << "unable set samples" << std::endl;
         return -1;
     }
@@ -195,6 +198,7 @@ static int alsa_init(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_
     // 将参数写入驱动
     rc = snd_pcm_hw_params(gp_handle, gp_params);
     if (rc < 0) {
+        snd_pcm_close(gp_handle);
         std::cout << "unable to set hw parameters" << std::endl;
         return -1;
     }
@@ -202,14 +206,14 @@ static int alsa_init(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_
     // 一个DMA有几个frame
     snd_pcm_uframes_t buffer_size_tmp;
     snd_pcm_hw_params_get_period_size(gp_params, &frames, &dir);
-    snd_pcm_hw_params_get_buffer_size(gp_params, &buffer_size_tmp);
+    // snd_pcm_hw_params_get_buffer_size(gp_params, &buffer_size_tmp);
 
-    if (frames == buffer_size_tmp) {
-        std::cout << "can not use period equal to buffer size" << std::endl;
-        return -1;
-    }
+    // if (frames == buffer_size_tmp) {
+        // std::cout << "can not use period equal to buffer size" << std::endl;
+        // return -1;
+    // }
 
-    buffer_size = frames * channels * bits_per_sample / 8;
+    // buffer_size = frames * channels * bits_per_sample / 8;
 
     return 0;
 }
@@ -222,14 +226,19 @@ static int alsa_init(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_
 void play(Mixer &mixer, uint16_t frame_num, uint16_t channels,
         uint32_t sample_rate, uint16_t bits_per_sample) {
 
-    int ret = alsa_init(channels, sample_rate, bits_per_sample);
+    snd_pcm_t * gp_handle;
+    snd_pcm_uframes_t frames;
+
+    int ret = init_alsa(channels, sample_rate, bits_per_sample, gp_handle, frames);
     if (ret < 0) {
-        std::cout << "error in play" << std::endl;
+        std::cout << "init alsa error" << std::endl;
         return;
     }
 
+    uint32_t buffer_size = frames * channels * bits_per_sample / 8;
     uint32_t sleep_time = buffer_size * 1000 / (sample_rate * channels * bits_per_sample / 8);
     uint8_t buf[buffer_size];
+
     while (true) {
         std::memset(buf, 0, buffer_size);
 
@@ -237,9 +246,12 @@ void play(Mixer &mixer, uint16_t frame_num, uint16_t channels,
         mixer.get_mix(buf, buffer_size);
 
         ret = snd_pcm_writei(gp_handle, buf, frames);
-        if (ret == -EPIPE || ret < 0) {
-            std::cout << "underrun occured or ret < 0" << std::endl;
-            continue;
+        if (ret == -EPIPE) {
+            std::cout << "underrun occured" << std::endl;
+            break;
+        } else if (ret < 0) {
+            std::cout << "error from writei: " << snd_strerror(ret) << std::endl;
+            break;
         }
         usleep(sleep_time*1000);
     }
@@ -247,6 +259,7 @@ void play(Mixer &mixer, uint16_t frame_num, uint16_t channels,
     // 这里需要重新写一下while的判断条件
     // ctrl c的时候结束
     // ctrl c统一个函数，该函数结束所有各种各样的线程
+    snd_pcm_close(gp_handle);
     snd_pcm_drain(gp_handle);
     snd_pcm_close(gp_handle);
 }
