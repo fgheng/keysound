@@ -7,6 +7,13 @@ extern "C" {
 #include <unistd.h>
 }
 
+static bool stop = false;
+
+// 停止播放
+void stop_play() {
+    stop = true;
+}
+
 #ifdef __USE_SDL__
 extern "C" {
 #include <SDL2/SDL.h>
@@ -86,7 +93,7 @@ void play(Mixer &mixer, uint16_t frame_num, uint16_t channels,
     uint8_t buf[spec.size];
 #endif
 
-    while (true) {
+    while (!stop) {
 #ifdef __SDL_CALL_BACK__
         SDL_Delay(1000);
 #else
@@ -239,7 +246,7 @@ void play(Mixer &mixer, uint16_t frame_num, uint16_t channels,
     uint32_t sleep_time = buffer_size * 1000 / (sample_rate * channels * bits_per_sample / 8);
     uint8_t buf[buffer_size];
 
-    while (true) {
+    while (!stop) {
         std::memset(buf, 0, buffer_size);
 
         // mixer.get_mix(play_back, buffer_size);
@@ -316,7 +323,7 @@ void play(Mixer &mixer, uint16_t frame_num, uint16_t channels,
 
     int error, ret;
     uint8_t buf[frame_num * frame_bytes];
-    while (true) {
+    while (!stop) {
         std::memset(buf, 0, frame_num * frame_bytes);
         mixer.get_mix(buf, frame_num * frame_bytes);
         ret = pa_simple_write(s, buf, frame_num * frame_bytes, &error);
