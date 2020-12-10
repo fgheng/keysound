@@ -3,6 +3,7 @@
 
 #include "utils.hpp"
 #include "cJSON.h"
+#include <cstring>
 #include <memory>
 #include <string>
 
@@ -101,6 +102,12 @@ private:
 
     bool is_wav(const std::string &str) const {
         return str.find(".wav") != std::string::npos;
+    }
+
+    // 判断是否为riff标识0x52494646
+    bool is_wav(const uint8_t *riff_id, const uint8_t *riff_type) const {
+        return (std::strcmp((char *)riff_id, "RIFF") == 0) &&
+               (std::strcmp((char *)riff_type, "WAVE"));
     }
 };
 
