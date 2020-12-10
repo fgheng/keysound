@@ -19,12 +19,21 @@ int main(int argc, char *argv[])
 
     std::string str;
 
-    if (args.dir!= "") str = args.dir;
-    if (args.json != "") str = args.json;
-    if (args.wav_file != "") str = args.wav_file;
-    if (str == "") return 0;
+    switch (args.flag) {
+        case 'd':
+            str = args.dir;
+            break;
+        case 'f':
+            str = args.wav_file;
+            break;
+        case 'j':
+            str = args.json;
+            break;
+        default:
+            exit(EXIT_FAILURE);
+    }
 
-    Audio audio(str);
+    Audio audio(str, args.flag);
     Mixer mixer(audio.get_max_len());
 
     std::thread th(device_detect, &audio, &mixer);
