@@ -139,9 +139,8 @@ bool Audio::read_wav(const std::string &file, WAV_DATA& wav_data) {
 
         f.close();
         return true;
-    } else {
-        goto failed;
-    }
+
+    } else goto failed;
 
 failed:
     f.close();
