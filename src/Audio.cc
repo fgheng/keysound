@@ -111,10 +111,7 @@ bool Audio::read_wav(const std::string &file, WAV_DATA& wav_data) {
         f.read((char *)&header, sizeof(WAVE_HEADER));
 
         // 不是wav文件
-        if (!is_wav(header.riff_id, header.riff_type)) {
-            f.close();
-            return false;
-        }
+        if (!is_wav(header.riff_id, header.riff_type)) goto failed;
 
         if (header.fmt_audio_format == 1) {
             if (!init_property) {
@@ -125,12 +122,10 @@ bool Audio::read_wav(const std::string &file, WAV_DATA& wav_data) {
             } else if (header.fmt_channels != channels
                     || header.fmt_sample_rate != sample_rate
                     || header.fmt_bits_per_sample != bits_per_sample) {
-                f.close();
-                return false;
+                goto failed;
             }
         } else {
-            f.close();
-            return false;
+            goto failed;
         }
 
         wav_data.len = header.data_size;
@@ -145,9 +140,12 @@ bool Audio::read_wav(const std::string &file, WAV_DATA& wav_data) {
         f.close();
         return true;
     } else {
-        f.close();
-        return false;
+        goto failed;
     }
+
+failed:
+    f.close();
+    return false;
 }
 
 WAV_DATA Audio::get_wav_by_code(uint16_t code) {
