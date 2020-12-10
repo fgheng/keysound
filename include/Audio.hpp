@@ -90,6 +90,11 @@ private:
         return (stat(file.c_str(), &buffer) == 0);
     }
 
+    // 判读是不是wav文件
+    bool is_wav(const std::string &str) const;
+    // 判断标识是否为RIFF与WAVE
+    bool tag_is_right(const uint8_t *riff_id, const uint8_t *riff_type) const;
+
     bool is_dir(const std::string &str) const {
         struct stat s;
         stat(str.c_str(), &s);
@@ -98,16 +103,6 @@ private:
 
     bool is_json(const std::string &str) const {
         return str.find(".json") != std::string::npos;
-    }
-
-    bool is_wav(const std::string &str) const {
-        return str.find(".wav") != std::string::npos;
-    }
-
-    // 判断是否为riff标识0x52494646
-    bool is_wav(const uint8_t *riff_id, const uint8_t *riff_type) const {
-        return (std::strcmp((char *)riff_id, "RIFF") == 0) &&
-               (std::strcmp((char *)riff_type, "WAVE"));
     }
 };
 
