@@ -1,6 +1,7 @@
 #include "utils.hpp"
 #include "Audio.hpp"
 #include "keycode.hpp"
+#include <cstdlib>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -26,15 +27,22 @@ Audio::Audio(const std::string str, uint16_t channels,
 
 void Audio::init(const std::string &str) {
     if (is_dir(str)) {
+        bool has_file = false;
         // 目录
         for (int i = 0; i < 256; i++) {
             if (wav_datas[i].data) continue;
             if (read_wav(str + "/" + KEYS[i].first + ".wav", wav_datas[i])) {
+                has_file = true;
                 datas[KEYS[i].second] = i;
             }
             else {
                 datas[KEYS[i].second] = 0;
             }
+        }
+
+        if (!has_file) {
+            std::cout << "there's no file exist in " << str << std::endl;
+            exit(EXIT_FAILURE);
         }
     } else if (is_json(str)) {
         // json
@@ -46,8 +54,8 @@ void Audio::init(const std::string &str) {
         cJSON *root = cJSON_Parse(json_buf.str().c_str());
 
         if (!root) {
-            std::cout << "read json file error" << std::endl;
-            return;
+            std::cout << "parse json failed" << std::endl;
+            exit(EXIT_FAILURE);
         }
 
         cJSON *item;
@@ -74,9 +82,13 @@ void Audio::init(const std::string &str) {
         cJSON_Delete(root);
     } else if (is_wav(str)) {
         // 单独的音乐文件
-        read_wav(str, wav_datas[0]);
-        for (int i = 1; i < 256; i++) {
-            datas[i] = 0;
+        if (read_wav(str, wav_datas[0])) {
+            for (int i = 1; i < 256; i++) {
+                datas[i] = 0;
+            }
+        } else {
+            std::cout << "read " << str << "error" << std::endl;
+            exit(EXIT_FAILURE);
         }
     }
 }
@@ -120,10 +132,13 @@ bool Audio::read_wav(const std::string &file, WAV_DATA& wav_data) {
 
         // 更新最大值
         if (wav_data.len > max_len) max_len = wav_data.len;
-    }
 
-    f.close();
-    return true;
+        f.close();
+        return true;
+    } else {
+        f.close();
+        return false;
+    }
 }
 
 WAV_DATA Audio::get_wav_by_code(uint16_t code) {
