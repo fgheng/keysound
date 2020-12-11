@@ -3,20 +3,20 @@
 
 #include "Mixer.hpp"
 
-// #define __USE_ALSA__
-#define __USE_PULSE__
-// #define __USE_SDL__
-// #define __SDL_CALL_BACK__
+// #define USE_ALSA
+// #define USE_PULSE
+// #define USE_SDL
+// #define SDL_CALL_BACK
 
-#ifdef __USE_ALSA__
+#ifdef USE_ALSA
 extern void play(Mixer *, uint16_t frame_size, uint16_t channels,
         uint32_t sample_rate, uint16_t bits_per_sample);
 #endif
-#ifdef __USE_PULSE__
+#ifdef USE_PULSE
 extern void play(Mixer *, uint16_t frame_size, uint16_t channels,
         uint32_t sample_rate, uint16_t bits_per_sample);
 #endif
-#ifdef __USE_SDL__
+#ifdef USE_SDL
 extern void play(Mixer *, uint16_t frame_size, uint16_t channels,
         uint32_t sample_rate, uint16_t bits_per_sample);
 #endif
