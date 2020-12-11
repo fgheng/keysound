@@ -17,11 +17,12 @@ extern char *optarg;
 static struct arguments {
     int flag = 0;
     bool daemon = false;
+    bool kill = false;
     std::string json = "";
     std::string wav_file = "";
     std::string dir = "";
     std::string log = "";
-} args = {0, false, "", "", "", ""};
+} args = {0, false, false, "", "", "", ""};
 
 static void process_command_line_arguments(int argc, char** argv) {
     if (argc <= 1) {
@@ -69,12 +70,13 @@ static void process_command_line_arguments(int argc, char** argv) {
         {"json", required_argument, 0, 'j'},
         {"log", required_argument, 0, 'l'},
         {"daemon", no_argument, 0, 'D'},
+        {"kill", no_argument, 0, 'k'},
         {"help", no_argument, 0, '?'},
         {0, 0, 0, 0}
     };
 
     int c;
-    while ((c = getopt_long(argc, argv, "h?d:f:j:l:D", long_options, 0)) != -1) {
+    while ((c = getopt_long(argc, argv, "kh?d:f:j:l:D", long_options, 0)) != -1) {
         switch (c) {
             case 'd':
                 args.dir = std::string(optarg);
@@ -105,6 +107,9 @@ static void process_command_line_arguments(int argc, char** argv) {
             case 'D':
                 args.daemon = true;
                 break;
+            case 'k':
+                args.kill = true;
+                break;
             case 'h':
             case '?':
             default:
@@ -114,7 +119,7 @@ static void process_command_line_arguments(int argc, char** argv) {
         }
     }
 
-    if (args.flag == 0) {
+    if (args.flag == 0 && !args.kill) {
         usage();
         exit(EXIT_FAILURE);
     }
