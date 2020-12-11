@@ -98,8 +98,8 @@ void Audio::from_dir(const std::string &str) {
 
 void Audio::from_json(const std::string &str) {
     // json
-    // TODO 更改成可以多对一
     std::map<std::string, uint16_t> a_map;
+    bool has_file = false;
 
     std::ifstream f(str);
     std::stringstream json_buf;
@@ -121,7 +121,10 @@ void Audio::from_json(const std::string &str) {
         for (int i = 0; i < 256; i++) {
             item = cJSON_GetObjectItem(root, KEYS[i].first.c_str());
 
-            if (!item) continue;
+            if (!item) {
+                datas[KEYS[i].second] = 0;
+                continue;
+            }
 
             std::string wav_name = std::string(item->valuestring);
 
@@ -136,6 +139,7 @@ void Audio::from_json(const std::string &str) {
             if (read_wav(wav_dir + "/" + wav_name, wav_datas[i])) {
                 datas[KEYS[i].second] = i;
                 a_map[wav_name] = i;
+                has_file = true;
             } else {
                 datas[KEYS[i].second] = 0;
             }
@@ -146,6 +150,10 @@ void Audio::from_json(const std::string &str) {
         exit(EXIT_FAILURE);
     }
     cJSON_Delete(root);
+
+    if (!has_file) {
+        exit(EXIT_FAILURE);
+    }
 }
 
 void Audio::from_file(const std::string &str) {
@@ -165,9 +173,7 @@ bool Audio::read_wav(const std::string &file, WAV_DATA& wav_data) {
     wav_data.len = 0;
     wav_data.bits_per_sample = 0;
 
-    if (!file_exists(file)) {
-        return false;
-    }
+    if (!file_exists(file)) return false;
 
     WAVE_HEADER header;
     std::ifstream f(file);
@@ -188,7 +194,10 @@ bool Audio::read_wav(const std::string &file, WAV_DATA& wav_data) {
                     || header.fmt_bits_per_sample != bits_per_sample) {
                 goto failed;
             }
-        } else goto failed;
+        } else {
+            std::cout << file << " has not pcm tag" << std::endl;
+            goto failed;
+        }
 
         wav_data.len = header.data_size;
         wav_data.bits_per_sample =  header.fmt_bits_per_sample;
