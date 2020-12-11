@@ -1,5 +1,5 @@
 {
-  "dir": "audio/hacker",
+  "dir": "./audio/hacker",
 
   "default": "key.wav",
   "x": "cut.wav",
