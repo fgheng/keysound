@@ -97,7 +97,10 @@ static void create_pid_file() {
 
             std::cout << "write pid file error" << std::endl;
             // exit(EXIT_FAILURE);
-        } else close(fd);
+        } else {
+            std::cout << "create success" << std::endl;
+            close(fd);
+        }
     } else {
         if (errno == EEXIST) {
             std::cout << "another process is running" << std::endl;
@@ -136,20 +139,21 @@ int main(int argc, char *argv[])
     Audio audio(str, args.flag);
     Mixer mixer(audio.get_max_len());
 
-    std::thread th1(device_detect, &audio, &mixer);
-    std::thread th2(play, &mixer, 2048, audio.get_channels(),
-        audio.get_sample_rate(), audio.get_bits_per_sample());
-
     // 杀掉已经存在的线程
     kill_exists_process();
     // 创建当前进程的文件
     create_pid_file();
 
+    std::thread th1(device_detect, &audio, &mixer);
+    std::thread th2(play, &mixer, 2048, audio.get_channels(),
+        audio.get_sample_rate(), audio.get_bits_per_sample());
+
     // 等待子线程结束，避免主线程提前释放资源后子线程访问失败
     th1.join();
     th2.join();
 
-    // 移除临时文件
-    remove(PID_FILE);
+    // 移除临时文件，这样不可，新进程创建的速度要快于通知旧进程结束的信号的速度
+    // 所以如果启动一个新进程，那么旧进程会将新进程的文件删除
+    // remove(PID_FILE);
     return 0;
 }
