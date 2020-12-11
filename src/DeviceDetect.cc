@@ -25,6 +25,9 @@ static const std::string cmd2 = "grep -B2 'EV=1[2]001[3Ff]' /proc/bus/input/devi
 // 是否监控设备
 static bool detect = true;
 
+// 所有键盘监控线程
+static std::vector<std::thread> all_threads;
+
 // 停止监控前应该先停止所有的键盘监控线程
 void stop_detect() {
     detect = false;
@@ -98,7 +101,7 @@ static int device_state(std::string str) {
     else return 0;
 }
 
-static void determine_input_device(Audio *audio, Mixer *mixer) {
+static void start_exists_device(Audio *audio, Mixer *mixer) {
     // 执行命令，获得键盘设备文件
     FILE *pip = popen(cmd1.c_str(), "r");
 
@@ -113,8 +116,7 @@ static void determine_input_device(Audio *audio, Mixer *mixer) {
             // 创建键盘监控线程
             std::string str_event_id = get_event_id(buf);
             str_event_id.erase(str_event_id.size() - 1);
-            std::thread th(key_detect, str_event_id, audio, mixer);
-            th.detach();
+            all_threads.push_back(std::thread(key_detect, str_event_id, audio, mixer));
         }
     }
 
@@ -124,7 +126,7 @@ static void determine_input_device(Audio *audio, Mixer *mixer) {
 // 键盘监控
 void device_detect(Audio *audio, Mixer *mixer) {
     // 首先启动已有的设备
-    determine_input_device(audio, mixer);
+    start_exists_device(audio, mixer);
     fd_set fds;
     struct timeval tv;
 
@@ -164,8 +166,7 @@ void device_detect(Audio *audio, Mixer *mixer) {
                         // 判断是不是键盘设备
                         if (is_keyboard(str_event_id)) {
                             // 新建线程
-                            std::thread th(key_detect, str_event_id, audio, mixer);
-                            th.detach();
+                            all_threads.push_back(std::thread(key_detect, str_event_id, audio, mixer));
                         }
                     }
                     break;
@@ -188,6 +189,9 @@ void device_detect(Audio *audio, Mixer *mixer) {
 
     clear_all_key_detect_threads();
     if (sock_fd > 0) close(sock_fd);
+
     // 等待子线程结束
-    usleep(100 * 1000);
+    for (auto &th: all_threads) {
+        th.join();
+    }
 }
