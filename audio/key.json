@@ -1,0 +1,6 @@
+{
+    "dir": "/home/forever/Workspace/keysound/audio",
+
+    "default": "typewriter-key.wav",
+    "enter": "typewriter-enter.wav"
+}

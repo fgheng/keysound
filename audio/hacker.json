@@ -1,0 +1,15 @@
+{
+  "dir": "audio/hacker",
+
+  "default": "key.wav",
+  "x": "cut.wav",
+  "v": "paste.wav",
+  "delete": "delete.wav",
+  "enter": "enter.wav",
+  "up": "arrow.wav",
+  "down": "arrow.wav",
+  "left": "arrow.wav",
+  "right": "arrow.wav",
+  "space": "spacebar.wav",
+  "tab": "tab.wav"
+}
