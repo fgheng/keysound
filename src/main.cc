@@ -69,17 +69,14 @@ static void kill_exists_process() {
 
     // 文件存在，读取文件
     if (tmp != NULL && fscanf(tmp, "%d", &pid) ==1) {
-        std::cout << "文件存在" << std::endl;
         fclose(tmp);
     } else {
-        std::cout << "文件不存在，使用命令" << std::endl;
         // 文件不存在，使用命令获取
         // 成功获取pid
         sscanf(execute(cmd).c_str(), "%d", &pid);
     }
 
     if (pid > 0 && pid != getpid()) {
-        std::cout << "kill 进程" << pid << std::endl;
         remove(PID_FILE);
         kill(pid, SIGINT);
     }
@@ -95,11 +92,12 @@ static void create_pid_file() {
         sprintf(pid, "%d", getpid());
 
         if (write(fd, pid, strlen(pid)) == -1) {
+            close(fd);
+            remove(PID_FILE);
+
             std::cout << "write pid file error" << std::endl;
             // exit(EXIT_FAILURE);
-        }
-        std::cout << "进程" << pid << "写入文件成功" << std::endl;
-        close(fd);
+        } else close(fd);
     } else {
         if (errno == EEXIST) {
             std::cout << "another process is running" << std::endl;
