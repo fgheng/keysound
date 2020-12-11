@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <memory>
+#include <string>
 #include <utility>
 #include <iostream>
 #include <thread>
@@ -56,6 +57,20 @@ static std::string execute(const std::string &cmd) {
     return result;
 }
 
+// // 主要是避免从文件中读取的时候，读取到一个其他进程的id
+// // 避免的方式是进程结束的时候自动删除文件
+// static bool pid_is_real(pid_t pid) {
+    // static std::string cmd =
+        // std::string("ps ax | grep ") + std::to_string(pid) +
+        // " | grep " + program_invocation_short_name +
+        // " | grep -v grep";
+
+    // if (execute(cmd) == "")
+        // return true;
+    // else
+        // return false;
+// }
+
 // 从指定文件读取已经存在的线程并结束
 static void kill_exists_process() {
     static std::string cmd =
@@ -76,9 +91,9 @@ static void kill_exists_process() {
         sscanf(execute(cmd).c_str(), "%d", &pid);
     }
 
-    if (pid > 0 && pid != getpid()) {
-        remove(PID_FILE);
+    if (pid > 0 && pid != getpid() /*&& pid_is_real(pid)*/) {
         kill(pid, SIGINT);
+        remove(PID_FILE);
     }
 }
 
@@ -107,7 +122,7 @@ static void create_pid_file() {
         } else {
             std::cout << "read file error" << std::endl;
         }
-        // exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -153,7 +168,7 @@ int main(int argc, char *argv[])
     th2.join();
 
     // 移除临时文件，这样不可，新进程创建的速度要快于通知旧进程结束的信号的速度
-    // 所以如果启动一个新进程，那么旧进程会将新进程的文件删除
+    // 所以如果启动一个新进程，那么旧进程会将新进程的文件删除，那怎么办呢？
     // remove(PID_FILE);
     return 0;
 }
