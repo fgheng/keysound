@@ -30,7 +30,7 @@ static void sdl_callback(void *userdata, uint8_t *stream, int len) {
 }
 #endif
 
-void play(Mixer &mixer, uint16_t frame_num, uint16_t channels,
+void play(Mixer *mixer, uint16_t frame_num, uint16_t channels,
         uint32_t sample_rate, uint16_t bits_per_sample) {
 
     uint32_t sleep_time; // 播放一组buffer所需的时间，ms
@@ -64,7 +64,7 @@ void play(Mixer &mixer, uint16_t frame_num, uint16_t channels,
 
 #ifdef __SDL_CALL_BACK__
     spec.callback = sdl_callback;
-    spec.userdata = (void *)&mixer;
+    spec.userdata = (void *)mixer;
 #else
     spec.callback = 0;
     spec.userdata = 0;
@@ -98,7 +98,7 @@ void play(Mixer &mixer, uint16_t frame_num, uint16_t channels,
         SDL_Delay(1000);
 #else
         SDL_memset(buf, 0, spec.size);
-        mixer.get_mix(buf, spec.size);
+        mixer->get_mix(buf, spec.size);
         SDL_QueueAudio(dev, buf, spec.size);
         // SDL_Delay(sleep_time);
         usleep(sleep_time*1000);
@@ -230,7 +230,7 @@ static int init_alsa(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_
     // usleep(sleep_time);
 // }
 
-void play(Mixer &mixer, uint16_t frame_num, uint16_t channels,
+void play(Mixer *mixer, uint16_t frame_num, uint16_t channels,
         uint32_t sample_rate, uint16_t bits_per_sample) {
 
     snd_pcm_t * gp_handle;
@@ -250,7 +250,7 @@ void play(Mixer &mixer, uint16_t frame_num, uint16_t channels,
         std::memset(buf, 0, buffer_size);
 
         // mixer.get_mix(play_back, buffer_size);
-        mixer.get_mix(buf, buffer_size);
+        mixer->get_mix(buf, buffer_size);
 
         ret = snd_pcm_writei(gp_handle, buf, frames);
         if (ret == -EPIPE) {
@@ -278,7 +278,7 @@ extern "C" {
 #include <pulse/simple.h>
 }
 
-void play(Mixer &mixer, uint16_t frame_num, uint16_t channels,
+void play(Mixer *mixer, uint16_t frame_num, uint16_t channels,
         uint32_t sample_rate, uint16_t bits_per_sample) {
 
     pa_simple *s;
@@ -325,7 +325,7 @@ void play(Mixer &mixer, uint16_t frame_num, uint16_t channels,
     uint8_t buf[frame_num * frame_bytes];
     while (!stop) {
         std::memset(buf, 0, frame_num * frame_bytes);
-        mixer.get_mix(buf, frame_num * frame_bytes);
+        mixer->get_mix(buf, frame_num * frame_bytes);
         ret = pa_simple_write(s, buf, frame_num * frame_bytes, &error);
         if (ret < 0) {
             std::cout << "pulse write error" << std::endl;
