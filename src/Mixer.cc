@@ -171,7 +171,7 @@ void Mixer::get_mix(uint8_t *buf, uint32_t size) {
     // 请求的数据块大于剩余的数据块
     if (size > buffer_end - pos) {
         std::memcpy(buf, pos, buffer_end - pos);
-        // 归0
+        // 拷贝过后的数据归0
         std::memset(pos, 0, buffer_end-pos);
 
         uint32_t left = size - (buffer_end - pos);
