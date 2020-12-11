@@ -21,7 +21,7 @@ static const std::string input_file_header = "/dev/input/event";
 // 则表明该线程该退出了
 void key_detect(std::string event_id, Audio *audio, Mixer *mixer) {
     input_event ie;
-    int tid = std::stoi(event_id);
+    // int tid = std::stoi(event_id);
 
     int fd;
     fd_set fds;
@@ -36,7 +36,6 @@ void key_detect(std::string event_id, Audio *audio, Mixer *mixer) {
 
     // 成功运行，添加到key_detect_threads中
     add_event_id(event_id);
-    std::cout << "我插进来了" << std::endl;
     while(event_id_exists(event_id)) {
         FD_ZERO(&fds);
         FD_SET(fd, &fds);
@@ -75,7 +74,5 @@ void key_detect(std::string event_id, Audio *audio, Mixer *mixer) {
         }
     }
 
-    std::cout << "我拔出来了啊" << std::endl;
-    del_event_id(event_id);
-    close(fd);
+    if (fd>0) close(fd);
 }
