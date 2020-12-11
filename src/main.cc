@@ -158,7 +158,6 @@ int main(int argc, char *argv[])
 
     // 杀掉已经存在的线程
     kill_exists_process();
-    sleep(1);
     // 创建当前进程的文件
     create_pid_file();
 
