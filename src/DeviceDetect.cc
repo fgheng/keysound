@@ -21,9 +21,11 @@ extern "C" {
 
 static const std::string cmd1 = "grep -E 'Handlers|EV=' /proc/bus/input/devices | grep -B1 'EV=1[2]001[3Ff]' | grep -Eo 'event[0-9]+'";
 static const std::string cmd2 = "grep -B2 'EV=1[2]001[3Ff]' /proc/bus/input/devices | grep event";
-// 监控设备
+
+// 是否监控设备
 static bool detect = true;
 
+// 停止监控前应该先停止所有的键盘监控线程
 void stop_detect() {
     std::cout << "准备停止监控" << std::endl;
     detect = false;
@@ -149,7 +151,7 @@ void device_detect(Audio *audio, Mixer *mixer) {
         std::memset(buf, '\0', UEVENT_BUFFER_SIZE);
         if (recv(sock_fd, buf, UEVENT_BUFFER_SIZE, 0) > 0) {
             std::string str_event_id = get_event_id(buf);
-            int int_event_id = atoi(str_event_id.c_str());
+            // int int_event_id = atoi(str_event_id.c_str());
 
             // 判断状态，增加设备还是删除设备
             int state = device_state(buf);
@@ -158,7 +160,7 @@ void device_detect(Audio *audio, Mixer *mixer) {
                 {
                     // 若是增加设备
                     // 判断设备线程是否已经存在
-                    if (event_id_exists(int_event_id)) break;
+                    if (event_id_exists(str_event_id)) break;
                     else {
                         // 判断是不是键盘设备
                         if (is_keyboard(str_event_id)) {
@@ -173,8 +175,8 @@ void device_detect(Audio *audio, Mixer *mixer) {
                 {
                     // 删除
                     // 判断是否已经存在于key_detect_threads中
-                    if (event_id_exists(int_event_id)) {
-                        del_event_id(int_event_id);
+                    if (event_id_exists(str_event_id)) {
+                        del_event_id(str_event_id);
                     }
                     break;
                 }
@@ -185,7 +187,8 @@ void device_detect(Audio *audio, Mixer *mixer) {
         }
     }
 
-    std::cout << "停止监控" << std::endl;
-    clear_all_key_devices();
-    close(sock_fd);
+    clear_all_key_detect_threads();
+    if (sock_fd > 0) close(sock_fd);
+    // 等待子线程结束
+    usleep(100 * 1000);
 }
