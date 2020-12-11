@@ -125,10 +125,17 @@ void Audio::from_json(const std::string &str) {
 
             std::string wav_name = std::string(item->valuestring);
 
-            if (wav_datas[i].data) continue;
+            // 已经读取过该音频了
+            if (a_map.count(wav_name) > 0) {
+                datas[KEYS[i].second] = a_map[wav_name];
+                continue;
+            }
+
+            // if (wav_datas[i].data) continue;
 
             if (read_wav(wav_dir + "/" + wav_name, wav_datas[i])) {
                 datas[KEYS[i].second] = i;
+                a_map[wav_name] = i;
             } else {
                 datas[KEYS[i].second] = 0;
             }
