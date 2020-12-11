@@ -19,7 +19,7 @@ static const std::string input_file_header = "/dev/input/event";
 
 // 设置event_id，用于监控消息队列中是否有该类型消息有，
 // 则表明该线程该退出了
-void key_detect(std::string event_id, Audio *audio, Mixer *mixer) {
+void key_detect(std::string str_event_id, Audio *audio, Mixer *mixer) {
     input_event ie;
     // int tid = std::stoi(event_id);
 
@@ -27,7 +27,7 @@ void key_detect(std::string event_id, Audio *audio, Mixer *mixer) {
     fd_set fds;
     struct timeval tv;
 
-    fd = open((input_file_header + event_id).c_str(), O_RDONLY);
+    fd = open((input_file_header + str_event_id).c_str(), O_RDONLY);
 
     if (fd == -1) {
         std::cout << "error occured while open event file" << std::endl;
@@ -35,8 +35,8 @@ void key_detect(std::string event_id, Audio *audio, Mixer *mixer) {
     }
 
     // 成功运行，添加到key_detect_threads中
-    add_event_id(event_id);
-    while(event_id_exists(event_id)) {
+    add_event_id(str_event_id);
+    while(event_id_exists(str_event_id)) {
         FD_ZERO(&fds);
         FD_SET(fd, &fds);
         tv.tv_sec = 0;
