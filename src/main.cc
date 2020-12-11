@@ -112,10 +112,7 @@ static void create_pid_file() {
 
             std::cout << "write pid file error" << std::endl;
             // exit(EXIT_FAILURE);
-        } else {
-            std::cout << "create success" << std::endl;
-            close(fd);
-        }
+        } else close(fd);
     } else {
         if (errno == EEXIST) {
             std::cout << "another process is running" << std::endl;
