@@ -48,7 +48,7 @@ static std::pair<std::string, uint16_t> KEYS[256] = {
     {"l", KEY_L},
     {";", KEY_SEMICOLON},
     {"'", KEY_APOSTROPHE},
-    {"what's this?", KEY_GRAVE},
+    {"`", KEY_GRAVE},
     {"lshift", KEY_LEFTSHIFT},
     {"\\", KEY_BACKSLASH},
     {"z", KEY_Z},
