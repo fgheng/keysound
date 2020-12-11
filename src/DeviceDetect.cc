@@ -27,7 +27,6 @@ static bool detect = true;
 
 // 停止监控前应该先停止所有的键盘监控线程
 void stop_detect() {
-    std::cout << "准备停止监控" << std::endl;
     detect = false;
 }
 
