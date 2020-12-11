@@ -26,6 +26,7 @@ private:
     uint32_t buffer_len;
     uint8_t *buffer;
     uint8_t *buffer_start, *pos, *buffer_end;
+    // uint32_t block_size;
 
     void mix8(uint8_t *, uint32_t);
     void mix16(uint8_t *, uint32_t);
