@@ -125,9 +125,14 @@ static void create_pid_file() {
 
 int main(int argc, char *argv[])
 {
-    signal_handling();
     process_command_line_arguments(argc, argv);
+    // 结束进程
+    if (args.kill) {
+        kill_exists_process();
+        exit(EXIT_SUCCESS);
+    }
 
+    signal_handling();
     std::string str;
 
     switch (args.flag) {
@@ -153,6 +158,7 @@ int main(int argc, char *argv[])
 
     // 杀掉已经存在的线程
     kill_exists_process();
+    sleep(1);
     // 创建当前进程的文件
     create_pid_file();
 
