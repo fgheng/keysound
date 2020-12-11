@@ -11,7 +11,7 @@ extern void add_event_id(int);
 extern void del_event_id(int);
 extern bool event_id_exists(int);
 extern bool is_event_id_lager_than_FILE_NUMS(int);
-extern void clear_all_key_devices();
+extern void clear_all_key_detect_threads();
 
 // 判断是否为小端系统
 extern bool little_end();
