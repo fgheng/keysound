@@ -2,7 +2,7 @@
 #define __AUDIO__
 
 #include "utils.hpp"
-#include "cJSON.h"
+#include "cJSON.hpp"
 #include <cstring>
 #include <memory>
 #include <string>
