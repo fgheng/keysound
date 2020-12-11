@@ -98,6 +98,9 @@ void Audio::from_dir(const std::string &str) {
 
 void Audio::from_json(const std::string &str) {
     // json
+    // TODO 更改成可以多对一
+    std::map<std::string, uint16_t> a_map;
+
     std::ifstream f(str);
     std::stringstream json_buf;
     json_buf << f.rdbuf();
