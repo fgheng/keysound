@@ -48,7 +48,6 @@ void Mixer::mix(uint8_t *buf, uint32_t size, uint16_t bits_per_sample) {
 }
 
 void Mixer::mix8(uint8_t *buf, uint32_t size) {
-    // 增加数据end会移动
     if (buffer_end - pos < size) {
         // 传入的size要比pos 到 end大
         mtx.lock();
@@ -144,7 +143,6 @@ void Mixer::get_mix(call_back func, uint32_t size) {
     mtx.lock();
 
     // 请求的数据块大于剩余的数据块，正常应该不会出现这种情况
-    // 所以这里应该重写，不需要这个，即使出现了，应该设置大小为到最后的值即可
     if (size > buffer_end - pos) {
         func(pos, buffer_end - pos);
         std::memset(pos, 0, buffer_end-pos);
@@ -207,7 +205,7 @@ inline int16_t Mixer::mix_int16(int16_t A, int16_t B) {
     // 应该改为内联汇编，使用汇编判断溢出位
     // uint16_t C = A + B
     // 如果溢出，C = xxx
-    // 该函数应该改为右值引用
+    // 该函数应该改为右值引用?
 
     // 参考http://blog.sina.com.cn/s/blog_4d61a7570101arsr.html
     int32_t A1 = static_cast<int32_t>(A);
