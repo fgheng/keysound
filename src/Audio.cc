@@ -232,8 +232,8 @@ bool Audio::is_wav(const std::string &str) const {
 }
 
 bool Audio::tag_is_right(const uint8_t *riff_id, const uint8_t *riff_type) const {
-    return riff_id[0] == 'R' && riff_id[1] == 'I' &&
+    return (riff_id[0] == 'R' && riff_id[1] == 'I' &&
            riff_id[2] == 'F' && riff_id[3] == 'F' &&
            riff_type[0] == 'W' && riff_type[1] == 'A' &&
-           riff_type[2] == 'V' && riff_type[3] == 'E';
+           riff_type[2] == 'V' && riff_type[3] == 'E');
 }
