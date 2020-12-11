@@ -14,7 +14,7 @@ void stop_play() {
     stop = true;
 }
 
-#ifdef __USE_SDL__
+#ifdef USE_SDL
 extern "C" {
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_audio.h>
@@ -113,7 +113,7 @@ void play(Mixer *mixer, uint16_t frame_num, uint16_t channels,
 
 #endif
 
-#ifdef __USE_ALSA__
+#ifdef USE_ALSA
 extern "C" {
 #include <alsa/asoundlib.h>
 #include <alsa/pcm.h>
@@ -273,7 +273,7 @@ void play(Mixer *mixer, uint16_t frame_num, uint16_t channels,
 
 #endif
 
-#ifdef __USE_PULSE__
+#ifdef USE_PULSE
 extern "C" {
 #include <pulse/simple.h>
 }
