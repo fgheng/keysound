@@ -28,6 +28,31 @@
 
 Makefile文件是找的模板，写的不是太好，后续需要更改一下。
 
+### depends
+
+默认使用的是pulse，所以我们需要安装libpulse，如果使用SDL2，那么就需要安装SDL2
+
+ubuntu:
+```
+# pulse
+sudo apt install libpulse-dev
+# sdl2
+sudo apt install libsdl2-dev
+```
+
+fedora:
+```
+# 这个我还没有尝试
+```
+
+arch: arch在安装pulseaudio的时候默认安装libpulse了
+```
+# pulse
+sudo pacman -S libpulse
+# sdl2
+sudo pacman -S sdl2
+```
+
 ### make
 
 ```
@@ -38,7 +63,7 @@ cd keysound
 make
 ```
 
-默认使用的是pulse播放，各种linux发行版通常自带pulse，所以使用pulse无需安装其他依赖。执行make之后会在Makefile文件所在的目录下生成一个可执行文件keysound。
+默认使用的是pulse播放，执行make之后会在Makefile文件所在的目录下生成一个可执行文件keysound。
 
 ### change owner
 
