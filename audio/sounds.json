@@ -1,0 +1,6 @@
+{
+    "dir": "./audio/sounds",
+
+    "default": "bubble-keyany.wav",
+    "enter": "bubble-keyenter.wav"
+}
