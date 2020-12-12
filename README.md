@@ -82,7 +82,7 @@ sudo chmod u+s ./keysound
 ./keysound -d ./audio/dir
 ```
 
-程序会去`./audio/dir`目录下寻找合适的音频，比如`a.wav`表示按键的音效，`lshift.wav`是左shift的音效，`;.wav`是按键`；`的音效等等。
+程序会去`./audio/dir`目录下寻找合适的音频，比如`a.wav`表示按键`a`的音效，`lshift.wav`是左shift的音效，`;.wav`是按键`;`的音效等等。
 
 ```
 ./keysound -j ./audio/piano.json
