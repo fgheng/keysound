@@ -207,7 +207,7 @@ inline int16_t Mixer::mix_int16(int16_t A, int16_t B) {
     // 如果溢出，C = xxx
     // 该函数应该改为右值引用?
 
-    // 参考http://blog.sina.com.cn/s/blog_4d61a7570101arsr.html
+    // 参考 http://blog.sina.com.cn/s/blog_4d61a7570101arsr.html
     int32_t A1 = static_cast<int32_t>(A);
     int32_t B1 = static_cast<int32_t>(B);
     int32_t C = A1 + B1 - (A1 * B1 >> 0x10);
