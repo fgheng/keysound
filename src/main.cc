@@ -22,9 +22,23 @@ extern "C" {
 
 #define PID_FILE "/tmp/keysound_pid"
 
+static void post_process() {
+    pid_t pid = 0;
+    FILE *tmp = fopen(PID_FILE, "r");
+
+    if (fscanf(tmp, "%d", &pid) == 1) {
+        fclose(tmp);
+        if (pid == getpid()) remove(PID_FILE);
+    }
+
+}
+
 static void signal_handler(int signal) {
     stop_detect();
     stop_play();
+
+    // 删除文件
+    post_process();
 }
 
 static void signal_handling() {
@@ -171,6 +185,6 @@ int main(int argc, char *argv[])
 
     // 移除临时文件，这样不可，新进程创建的速度要快于通知旧进程结束的信号的速度
     // 所以如果启动一个新进程，那么旧进程会将新进程的文件删除，那怎么办呢？
-    remove(PID_FILE);
+    // remove(PID_FILE);
     return 0;
 }
