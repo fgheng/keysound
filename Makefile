@@ -1,5 +1,5 @@
-CC = /usr/bin/g++
-LD = /usr/bin/g++
+CC = g++
+LD = g++
 
 BUILD_DIR = build
 SRC = src
