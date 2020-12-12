@@ -164,7 +164,10 @@ int main(int argc, char *argv[])
     }
 
     if (args.daemon) {
-        daemon(1, 0);
+        if(daemon(1, 0) == -1) {
+            std::cout << "daemon create error" << std::endl;
+            exit(EXIT_FAILURE);
+        }
     }
 
     Audio audio(str, args.flag);
