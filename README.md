@@ -233,7 +233,7 @@ sudo chmod u+s ./keysound
    Ckjkjjkk  njkjjnncc  cnncnjj  vvvjnvc
    ```
 
-8. [更多]()
+8. [更多](https://github.com/fgheng/keysound/issues/2)
 
 
 
