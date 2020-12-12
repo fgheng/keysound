@@ -171,6 +171,6 @@ int main(int argc, char *argv[])
 
     // 移除临时文件，这样不可，新进程创建的速度要快于通知旧进程结束的信号的速度
     // 所以如果启动一个新进程，那么旧进程会将新进程的文件删除，那怎么办呢？
-    // remove(PID_FILE);
+    remove(PID_FILE);
     return 0;
 }
