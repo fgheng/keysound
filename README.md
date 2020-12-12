@@ -28,7 +28,7 @@
 
 Makefile文件是找的模板，写的不是太好，后续需要更改一下。
 
-#### make
+### make
 
 ```
 git clone https://github.com/fgheng/keysound
@@ -40,7 +40,7 @@ make
 
 默认使用的是pulse播放，各种linux发行版通常自带pulse，所以使用pulse无需安装其他依赖。执行make之后会在Makefile文件所在的目录下生成一个可执行文件keysound。
 
-#### change owner
+### change owner
 
 编译完成之后我们还需要进行如下的操作才可以运行：
 
