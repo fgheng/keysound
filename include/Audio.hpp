@@ -9,7 +9,6 @@
 
 extern "C" {
 #include <sys/stat.h>
-#include <SDL2/SDL_audio.h>
 #include <bits/stdint-uintn.h>
 }
 
