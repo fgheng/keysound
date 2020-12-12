@@ -5,7 +5,6 @@
 #include <ostream>
 
 extern "C" {
-#include <SDL2/SDL_audio.h>
 #include <unistd.h>
 }
 
