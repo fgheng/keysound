@@ -47,7 +47,9 @@ void key_detect(std::string str_event_id, Audio *audio, Mixer *mixer) {
         if (ret < 0 ) continue;
         if (!(ret > 0 && FD_ISSET(fd, &fds))) continue;
 
-        read(fd, (void *)&ie, sizeof(struct input_event));
+        ssize_t num = read(fd, (void *)&ie, sizeof(struct input_event));
+
+        if (num == -1 || num != sizeof(struct input_event)) continue;
 
         // 键盘事件
         if (ie.type == EV_KEY) {
