@@ -36,9 +36,9 @@ Makefile文件是找的模板，写的不是太好，后续需要更改一下。
 
 ubuntu:
 ```
-# pulse
+# 如果使用pulse
 sudo apt install libpulse-dev
-# sdl2
+# 如果使用sdl2
 sudo apt install libsdl2-dev
 ```
 
@@ -49,9 +49,9 @@ fedora:
 
 arch: arch在安装pulseaudio的时候默认安装libpulse了
 ```
-# pulse
+# 如果使用pulse
 sudo pacman -S libpulse
-# sdl2
+# 如果使用sdl2
 sudo pacman -S sdl2
 ```
 
@@ -67,19 +67,13 @@ make
 
 默认使用的是pulse播放，执行make之后会在Makefile文件所在的目录下生成一个可执行文件keysound。
 
-### change owner
+### add to group
 
-编译完成之后我们还需要进行如下的操作才可以运行：
+编译完成后，我们需要将用户加入到input用户组才可以使用keysound
 
 ```
-sudo chown root ./keysound
-
-sudo chmod u+s ./keysound
+sudo usermod -a -G input 用户名
 ```
-
-因为键盘的检测读取的是`/dev/input/`下面的`event`文件，所以必须使用root运行，但是使用root运行的时候pulse和SDL2会出现音频无法播放的问题，所以必须使用上面的语句，执行完上面的语句之后就可以运行了。
-
-这是我一直存在的一个疑问，我不清楚为什么会出现这个问题。
 
 
 
@@ -262,14 +256,6 @@ sudo chmod u+s ./keysound
 
 
 
-
-## Want help
-
-1. 只使用root但不使用`chown root`与`chmod u+s`两条命令。本程序必须要使用这两条命令才可以正常使用，当然如果使用alsa的话就可以不使用这两条命令，但是使用alsa播放音频，会出现音频设备独占的情况，其他音频软件无法播放声音。
-2. 不使用root。普通用户可以直接检测键盘输入然后播放音频。
-
-
-
 ## TODO
 
 - [ ] 重新编写README
@@ -278,7 +264,6 @@ sudo chmod u+s ./keysound
 - [ ] 优化混音部分的计算：1. 使用更好的方式实现混音算法 2. 设计一个更好的buffer
 - [ ] 混音部分增加float支持
 - [ ] 混音部分增加大小端判断
-- [ ] 不需要sudo chown root 以及 sudo chmod u+s，可以直接root启动
 - [ ] 增加音量调节
 - [ ] 增加一个界面，可以在任务栏显示
 - [ ] 修复alsa无法播放的bug
