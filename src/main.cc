@@ -26,11 +26,12 @@ static void post_process() {
     pid_t pid = 0;
     FILE *tmp = fopen(PID_FILE, "r");
 
-    if (fscanf(tmp, "%d", &pid) == 1) {
-        fclose(tmp);
-        if (pid == getpid()) remove(PID_FILE);
+    if (tmp) {
+        if (fscanf(tmp, "%d", &pid) == 1) {
+            fclose(tmp);
+            if (pid == getpid()) remove(PID_FILE);
+        }
     }
-
 }
 
 static void signal_handler(int signal) {
