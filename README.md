@@ -12,6 +12,8 @@
 
 该项目虽然很简单，但是我从中学到了很多，如音频方面，我了解了wav格式如何解析，理解了采样率，通道数，比特率，混音等概念，会计算一段数据的播放时长；系统编程方面，学习了多线程，设备热插拔的监控，命令行参数的解析，信号等等；该项目甚至让我学会了弹钢琴，哈哈哈。
 
+[这里有一些视频演示](https://zhuanlan.zhihu.com/p/336490503)
+
 
 
 ## Advatage
@@ -201,7 +203,7 @@ sudo chmod u+s ./keysound
 
 
 
-## example
+## Example
 
 `audio`目录下有一个`piano.json`配置文件，该配置文件是一个按键与钢琴音效对应的配置文件，该配置只使用了三个八度的音，我们可以根据自己的情况配置更多的音，使用该配置后，我们的键盘就变成了一个简单的钢琴，执行下面的命令：
 
@@ -258,7 +260,6 @@ sudo chmod u+s ./keysound
    Ckjkjjkk  njkjjnncc  cnncnjj  vvvjnvc
    ```
 
-8. [更多](https://github.com/fgheng/keysound/issues/2)
 
 
 
