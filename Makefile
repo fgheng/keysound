@@ -12,24 +12,37 @@ TARGET = keysound
 INCLUDE = -I./include
 
 LIB = -lpthread
-LIB_USE_ALSA = -lalsound -D USE_ALSA
-LIB_USE_PULSE = -lpulse-simple -D USE_PULSE
-LIB_USE_SDL = -lSDL2 -D USE_SDL
-
 CFLAGS = -O3
+MARCO = -D
+
+ifeq ($(CFLAG), pulse)
+	MARCO+=USE_PULSE
+	LIB+=-lpulse-simple
+endif
+
+ifeq ($(CFLAG), alsa)
+	MARCO+=USE_ALSA
+	LIB+=-lasound
+endif
+
+ifeq ($(CFLAG), sdl)
+	MARCO+=USE_SDL
+	LIB+=-lSDL2
+endif
 
 
-.PHONY: all clean pulse alsa sdl
+
+.PHONY: all clean
 
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(LD) -o $@ $^ $(LIB) $(LIB_USE_PULSE)
+	$(LD) -o $@ $^ $(CFLAGS) $(LIB)
 
 # 由cc生成oo，编译的时候只需要头文件和源文件，不需要-l的，但是需要-D
 $(BUILD_DIR)/%.o:$(SRC)/%.cc
 	@ if [ ! -d $(BUILD_DIR) ]; then mkdir -p $(BUILD_DIR); fi;
-	$(CC) -c $(INCLUDE) $(CFLAGS) $(LIB_USE_PULSE) -o $@ $<
+	$(CC) -c $(INCLUDE) $(CFLAGS) $(MARCO) -o $@ $<
 
 clean:
 	rm -f $(OBJS) $(TARGET)
