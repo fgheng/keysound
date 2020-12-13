@@ -62,7 +62,12 @@ git clone https://github.com/fgheng/keysound
 
 cd keysound
 
-make
+# 使用pulse
+make CFLAG=pulse
+# 使用sdl2
+make CFLAG=sdl
+# 使用alsa
+make CFLAG=alsa
 ```
 
 默认使用的是pulse播放，执行make之后会在Makefile文件所在的目录下生成一个可执行文件keysound。
