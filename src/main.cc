@@ -22,6 +22,9 @@ extern "C" {
 
 #define PID_FILE "/tmp/keysound_pid"
 
+// TODO
+// 重新将进程这部分设计一下
+
 static void post_process() {
     pid_t pid = 0;
     FILE *tmp = fopen(PID_FILE, "r");
