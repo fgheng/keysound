@@ -4,7 +4,7 @@
 
 一个linux下的按键音效程序
 
-## Motive
+## Motivation
 
 当我使用vim编程的时，我找到了一个有趣的插件[skywind3000/vim-keysound](https://github.com/skywind3000/vim-keysound)，这个插件会在你进行输入的时候，发出类似机械键盘敲击的声音，我觉得非常有趣，不过，该插件只能在vim中使用，不能在其他软件中使用，也就是无法全局使用，而且该插件不支持混音，当你连续按下两个按键的时候，第二个按键的声效会终止第一个按键的声效，体验不是太好。
 
@@ -82,11 +82,9 @@ make CFLAG=alsa
 sudo usermod -a -G input 用户名
 ```
 
-重新登录或者使用下面的命令就不需要重新登录了
+重新登录以使附加组生效。
 
-```
-newgrp input
-```
+
 
 
 ## Basic Usage
