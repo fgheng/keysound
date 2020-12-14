@@ -2,9 +2,13 @@
 
 ![pic](./pic/piano.jpg)
 
+<a href="./README.md">中文版</a>
+
 A key sound program on GNU/Linux
 
-## Motive
+Thanks [@MiraculousMoon](https://github.com/MiraculousMoon) for this English version.
+
+## Motivation
 
 I find an interesting plugin called [skywind3000/vim-keysound](https://github.com/skywind3000/vim-keysound) when I program in VIM. It can give you immediate feedback using mechanical keyboard sound when you are typing. But it can't work globally and doesn't support mixing.
 
@@ -72,6 +76,11 @@ Add your username to `input` group
 sudo usermod -a -G input username
 ```
 
+relogin or user this command
+
+```
+newgrp input
+```
 
 
 ## Basic Usage

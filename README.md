@@ -2,8 +2,7 @@
 
 ![pic](./pic/piano.jpg)
 
-
-<a href="./README-en.md">English README</a>
+<a href="./README-en.md">English README</a>  感谢[@MiraculousMoon](https://github.com/MiraculousMoon)提供英文版
 
 一个linux下的按键音效程序
 
