@@ -47,7 +47,7 @@ fedora:
 # 这个我还没有尝试
 ```
 
-arch: arch在安装pulseaudio的时候默认安装libpulse了
+arch:
 ```
 # 如果使用pulse
 sudo pacman -S libpulse
