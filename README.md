@@ -90,7 +90,7 @@ sudo usermod -a -G input 用户名
   -f, --file=WAV_FILE        要播放的音频
   -j, --json=JSON_FILE       json配置文件
   -d, --dir=DIR              目录
-  -l, --log=LOG_FILE         日志输出文件
+  -l, --log=LOG_FILE         日志输出文件（未完成）
   -D, --daemon               后台运行
   -k, --kill                 结束进程
   -?, -h, --help             帮助
