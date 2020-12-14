@@ -263,8 +263,9 @@ sudo usermod -a -G input 用户名
 
 ## TODO
 
+- [ ] 急，重新整理进程退出这部分的逻辑
 - [ ] 重新编写README
-- [ ] 重新编写Makefile，可以选择使用alsa，pulse还是sdl2，检测依赖是否缺失
+- [X] 重新编写Makefile，可以选择使用alsa，pulse还是sdl2，检测依赖是否缺失
 - [ ] 增加日志输出
 - [ ] 优化混音部分的计算：1. 使用更好的方式实现混音算法 2. 设计一个更好的buffer
 - [ ] 混音部分增加float支持
