@@ -258,17 +258,17 @@ Here are some example key sequences.
 - [ ] Reorganize the logic of the process exiting this part.
 - [ ] Rewrite the README.
 - [X] Rewrite Makefile, you can choose to use alsa, pulse or sdl2, and check whether the dependency is missing.
-- [ ] Increase log output.
+- [ ] Support log output.
 - [ ] Optimize the calculation of the mixing part: 1. Use a better way to implement the mixing algorithm 2. Design a better buffer.
 - [ ] Float support added in the mixing section.
 - [ ] The mixing section adds the size end judgment.
 - [ ] Added option not to use audio mixing.
-- [ ] Increase volume adjustment function.
-- [ ] Added an interface that can be displayed in the taskbar
+- [ ] Support volume adjustment function.
+- [ ] Add an interface that can be displayed in the taskbar
 - [ ] Fix the bug that alsa cannot be played.
 - [ ] Add to the software warehouse of various distros like AUR.
 - [ ] Add the customization of sound effects such as button up and repeat.
-- [ ] Added mouse operation sound effects.
+- [ ] Support mouse operation sound effects.
 - [ ] Reduce Bluetooth headsets' latency.
 
 
