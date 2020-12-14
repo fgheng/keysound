@@ -11,7 +11,7 @@ static void usage()
                 << "  -f, --file=WAV_FILE        play sound use FILE\n"
                 << "  -j, --json=JSON_FILE       config keyboard sound by json\n"
                 << "  -d, --dir=DIR              config keyboard sound by direction\n"
-                << "  -l, --log=LOG_FILE         log file\n"
+                << "  -l, --log=LOG_FILE         log file (not implemented)\n"
                 << "  -D, --daemon               run in background\n"
                 << "  -k, --kill                 stop all\n"
                 << "  -?, -h, --help             help\n";
