@@ -68,7 +68,7 @@ make
 make CFLAG=pulse
 # 指定使用sdl2
 make CFLAG=sdl
-# 指定使用alsa
+# 指定使用alsa，存在问题，不要使用这个
 make CFLAG=alsa
 ```
 
