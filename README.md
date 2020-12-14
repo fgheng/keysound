@@ -299,6 +299,8 @@ newgrp input
 
 ## Thanks
 
+感谢[@MiraculousMoon](https://github.com/MiraculousMoon)提供英文版
+
 [skywind3000/vim-keysound](https://github.com/skywind3000/vim-keysound)
 
 [mattogodoy/hacker-sounds](https://github.com/mattogodoy/hacker-sounds)

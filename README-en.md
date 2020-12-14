@@ -284,6 +284,8 @@ Here are some example key sequences.
 
 ## Thanks
 
+Thanks [@MiraculousMoon](https://github.com/MiraculousMoon) for this English version.
+
 [skywind3000/vim-keysound](https://github.com/skywind3000/vim-keysound)
 
 [mattogodoy/hacker-sounds](https://github.com/mattogodoy/hacker-sounds)
