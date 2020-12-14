@@ -13,25 +13,16 @@ INCLUDE = -I./include
 
 LIB = -lpthread
 CFLAGS = -O3
-MARCO = -D
-
-ifndef $(CFLAG)
-	MARCO+=USE_PULSE
-	LIB+=-lpulse-simple
-endif
+MARCO =
 
 ifeq ($(CFLAG), pulse)
-	MARCO+=USE_PULSE
+	MARCO+=-D USE_PULSE
 	LIB+=-lpulse-simple
-endif
-
-ifeq ($(CFLAG), alsa)
-	MARCO+=USE_ALSA
+else ifeq ($(CFLAG), alsa)
+	MARCO+=-D USE_ALSA
 	LIB+=-lasound
-endif
-
-ifeq ($(CFLAG), sdl)
-	MARCO+=USE_SDL
+else ifeq ($(CFLAG), sdl)
+	MARCO+=-D USE_SDL
 	LIB+=-lSDL2
 endif
 
