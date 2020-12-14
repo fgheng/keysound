@@ -84,6 +84,14 @@ sudo usermod -a -G input 用户名
 
 重新登录以使附加组生效。
 
+或者不想重新登录，直接使用的话，那么可以在终端中执行如下命令：
+
+```
+newgrp input
+```
+
+该命令会新开一个shell，在该shell中用户属于input组。
+
 
 
 
