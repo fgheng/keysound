@@ -62,6 +62,8 @@ git clone https://github.com/fgheng/keysound
 
 cd keysound
 
+# 默认使用pulse
+make
 # 指定使用pulse
 make CFLAG=pulse
 # 指定使用sdl2
