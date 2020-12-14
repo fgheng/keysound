@@ -15,7 +15,10 @@ LIB = -lpthread
 CFLAGS = -O3
 MARCO =
 
-ifeq ($(CFLAG), pulse)
+ifeq ($(CFLAG), )
+	MARCO+=-D USE_PULSE
+	LIB+=-lpulse-simple
+else ifeq ($(CFLAG), pulse)
 	MARCO+=-D USE_PULSE
 	LIB+=-lpulse-simple
 else ifeq ($(CFLAG), alsa)
