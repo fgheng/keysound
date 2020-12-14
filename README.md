@@ -265,7 +265,7 @@ sudo usermod -a -G input 用户名
 
 ## TODO
 
-- [ ] 急，重新整理进程退出这部分的逻辑
+- [ ] 重新整理进程退出这部分的逻辑
 - [ ] 重新编写README
 - [X] 重新编写Makefile，可以选择使用alsa，pulse还是sdl2，检测依赖是否缺失
 - [ ] 增加日志输出
