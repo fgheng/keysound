@@ -82,6 +82,11 @@ make CFLAG=alsa
 sudo usermod -a -G input 用户名
 ```
 
+重新登录或者使用下面的命令就不需要重新登录了
+
+```
+newgrp input
+```
 
 
 ## Basic Usage
