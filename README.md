@@ -62,11 +62,13 @@ git clone https://github.com/fgheng/keysound
 
 cd keysound
 
-# 使用pulse
+# 直接make，默认使用pulse
+make
+# 指定使用pulse
 make CFLAG=pulse
-# 使用sdl2
+# 指定使用sdl2
 make CFLAG=sdl
-# 使用alsa
+# 指定使用alsa
 make CFLAG=alsa
 ```
 
