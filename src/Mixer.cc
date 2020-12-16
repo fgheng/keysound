@@ -141,22 +141,46 @@ void Mixer::get_mix(call_back func, uint32_t size) {
     // 取数据，pos会移动
     mtx.lock();
 
-    // 请求的数据块大于剩余的数据块，正常应该不会出现这种情况
-    if (size > buffer_end - pos) {
-        func(pos, buffer_end - pos);
-        std::memset(pos, 0, buffer_end-pos);
+    uint32_t buf_pos = 0;
+    // uint32_t need = size;
 
-        uint32_t left = size - (buffer_end - pos);
-        pos = buffer_start;
-        func(pos, left);
-        std::memset(pos, 0, left);
-        pos += left;
+    // 所需大于0
+    while (size - buf_pos > 0) {
+        if (size - buf_pos > buffer_end - pos) {
+            // 所需大于mixer的buffer的当前位置到结尾
 
-    } else {
-        func(pos, size);
-        std::memset(pos, 0, size);
-        pos += size;
+            func(pos, buffer_end - pos);
+            // 拷贝过后的数据归0
+            std::memset(pos, 0, buffer_end-pos);
+            buf_pos += buffer_end - pos;
+            pos = buffer_start;
+        } else {
+            // 所需小于mixer的buffer当前位置到结尾
+            func(pos, size - buf_pos);
+            std::memset(pos, 0, size - buf_pos);
+            pos += size - buf_pos;
+
+            // buf_pos += (size - buf_pos);
+            break;
+        }
     }
+
+    // // 请求的数据块大于剩余的数据块，正常应该不会出现这种情况
+    // if (size > buffer_end - pos) {
+        // func(pos, buffer_end - pos);
+        // std::memset(pos, 0, buffer_end-pos);
+
+        // uint32_t left = size - (buffer_end - pos);
+        // pos = buffer_start;
+        // func(pos, left);
+        // std::memset(pos, 0, left);
+        // pos += left;
+
+    // } else {
+        // func(pos, size);
+        // std::memset(pos, 0, size);
+        // pos += size;
+    // }
     mtx.unlock();
 }
 
@@ -165,23 +189,50 @@ void Mixer::get_mix(uint8_t *buf, uint32_t size) {
     // 取数据，pos会移动
     mtx.lock();
 
-    // 请求的数据块大于剩余的数据块
-    if (size > buffer_end - pos) {
-        std::memcpy(buf, pos, buffer_end - pos);
-        // 拷贝过后的数据归0
-        std::memset(pos, 0, buffer_end-pos);
+    uint32_t buf_pos = 0;
+    // uint32_t need = size;
 
-        uint32_t left = size - (buffer_end - pos);
-        std::memcpy(buf + (buffer_end - pos), buffer_start, left);
-        std::memset(buffer_start, 0, left);
+    while (size - buf_pos > 0) {
+        if (size - buf_pos > buffer_end - pos) {
+            std::memcpy(buf + buf_pos, pos, buffer_end - pos);
+            // 拷贝过后的数据归0
+            std::memset(pos, 0, buffer_end-pos);
+            buf_pos += buffer_end - pos;
+            pos = buffer_start;
+        } else {
+            std::memcpy(buf + buf_pos, pos, size - buf_pos);
+            std::memset(pos, 0, size - buf_pos);
+            pos += size - buf_pos;
 
-        pos = buffer_start + left;
-
-    } else {
-        std::memcpy(buf, pos, size);
-        std::memset(pos, 0, size);
-        pos += size;
+            // buf_pos += (size - buf_pos);
+            break;
+        }
     }
+
+    // // 请求的数据块大于剩余的数据块
+    // if (size > buffer_end - pos) {
+        // std::cout << "---------------------" << std::endl;
+        // std::cout << "pos start " << pos - buffer_start << std::endl;
+        // std::cout << "size " << size << std::endl;
+        // std::cout << "buffer_end - pos " << buffer_end - pos << std::endl;
+        // std::memcpy(buf, pos, buffer_end - pos);
+        // // 拷贝过后的数据归0
+        // std::memset(pos, 0, buffer_end-pos);
+
+        // uint32_t left = size - (buffer_end - pos);
+        // std::cout << "left is " << size - (buffer_end - pos) << std::endl;
+        // std::memcpy(buf + (buffer_end - pos), buffer_start, left);
+        // std::cout << "buf + (bufend - pos) " << (buffer_end - pos) << std::endl;
+        // std::memset(buffer_start, 0, left);
+
+        // pos = buffer_start + left;
+        // std::cout << "pos end " << pos - buffer_start << std::endl;
+
+    // } else {
+        // std::memcpy(buf, pos, size);
+        // std::memset(pos, 0, size);
+        // pos += size;
+    // }
     mtx.unlock();
 }
 
