@@ -152,7 +152,7 @@ void Audio::from_json(const std::string &str) {
     cJSON_Delete(root);
 
     if (!has_file) {
-        std::cout << "no file read success" << std::endl;
+        std::cout << "no wav file read success" << std::endl;
         exit(EXIT_FAILURE);
     }
 }
