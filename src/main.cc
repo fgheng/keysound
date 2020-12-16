@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
 
     // 杀掉已经存在的线程
     kill_exists_process();
-    // 创建当前进程的文件
+    // 创建当前进程pid的文件
     create_pid_file();
 
     std::thread th1(device_detect, &audio, &mixer);
