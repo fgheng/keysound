@@ -1,0 +1,7 @@
+{
+    "dir": "./audio/sounds",
+
+    "default": "mario-keyany.wav",
+    "enter": "mario-keyenter.wav",
+    "delete": "mario-alarm.wav"
+}
