@@ -30,8 +30,8 @@ void key_detect(std::string str_event_id, Audio *audio, Mixer *mixer) {
     fd = open((input_file_header + str_event_id).c_str(), O_RDONLY);
 
     if (fd == -1) {
-        std::cout << "error occured while open event file, ";
-        std::cout << "you maybe has no access to the file " << std::endl;
+        std::cout << "error occured while open event file: " << input_file_header + str_event_id;
+        std::cout << " you maybe has no access to the file " << std::endl;
         return;
     }
 
