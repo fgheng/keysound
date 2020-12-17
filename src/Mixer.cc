@@ -136,7 +136,6 @@ void Mixer::mix32(uint8_t *buf, uint32_t size) {
     }
 }
 
-// 需要考虑一下
 void Mixer::get_mix(call_back func, uint32_t size) {
     // 取数据，pos会移动
     mtx.lock();
@@ -148,7 +147,6 @@ void Mixer::get_mix(call_back func, uint32_t size) {
     while (size - buf_pos > 0) {
         if (size - buf_pos > buffer_end - pos) {
             // 所需大于mixer的buffer的当前位置到结尾
-
             func(pos, buffer_end - pos);
             // 拷贝过后的数据归0
             std::memset(pos, 0, buffer_end-pos);
