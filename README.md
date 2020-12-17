@@ -279,10 +279,8 @@ newgrp input
 ## TODO
 
 - [ ] 重新整理进程退出这部分的逻辑
-- [ ] 重新编写README
 - [X] 重新编写Makefile，可以选择使用alsa，pulse还是sdl2，检测依赖是否缺失
 - [ ] 增加日志输出
-- [ ] 增加错误提示
 - [ ] 优化混音部分的计算：1. 使用更好的方式实现混音算法 2. 设计一个更好的buffer
 - [ ] 混音部分增加float支持
 - [ ] 混音部分增加大小端判断
@@ -294,6 +292,7 @@ newgrp input
 - [ ] 增加按键抬起，重复等音效的自定义
 - [ ] 增加鼠标操作音效
 - [ ] 蓝牙耳机存在较高延迟
+- [ ] 支持soundfont midi
 
 
 
@@ -301,7 +300,7 @@ newgrp input
 
 感谢[@MiraculousMoon](https://github.com/MiraculousMoon)提供英文版
 
-部分音频资源来自一下项目
+部分音频资源来自以下项目
 
 [skywind3000/vim-keysound](https://github.com/skywind3000/vim-keysound)
 
