@@ -38,6 +38,9 @@ void key_detect(std::string str_event_id, Audio *audio, Mixer *mixer) {
         // usleep(100 * 1000);
         // std::cout << "判断是否有权限" << std::endl;
     // }
+    // 经过搜索，我找到了原因，是因为程序读取太快，在udev正确设置权限之前就读取了
+    // 有两个解决方案，一个是等待一段时间，比如sleep(1)
+    // 第二个是使用inotify监控文件的权限更改
     sleep(1);
     fd = open((input_file_header + str_event_id).c_str(), O_RDONLY);
 
