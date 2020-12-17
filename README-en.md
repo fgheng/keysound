@@ -265,7 +265,6 @@ Here are some example key sequences.
 ## TODO
 
 - [ ] Reorganize the logic of the process exiting this part.
-- [ ] Rewrite the README.
 - [X] Rewrite Makefile, you can choose to use alsa, pulse or sdl2, and check whether the dependency is missing.
 - [ ] Support log output.
 - [ ] Optimize the calculation of the mixing part: 1. Use a better way to implement the mixing algorithm 2. Design a better buffer.
@@ -279,6 +278,7 @@ Here are some example key sequences.
 - [ ] Add the customization of sound effects such as button up and repeat.
 - [ ] Support mouse operation sound effects.
 - [ ] Reduce Bluetooth headsets' latency.
+- [ ] support soundfont and midi
 
 
 
