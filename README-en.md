@@ -286,6 +286,8 @@ Here are some example key sequences.
 
 Thanks [@MiraculousMoon](https://github.com/MiraculousMoon) for this English version.
 
+some audio resources come from
+
 [skywind3000/vim-keysound](https://github.com/skywind3000/vim-keysound)
 
 [mattogodoy/hacker-sounds](https://github.com/mattogodoy/hacker-sounds)
