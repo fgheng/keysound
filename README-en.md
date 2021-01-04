@@ -293,3 +293,6 @@ some audio resources come from
 [mattogodoy/hacker-sounds](https://github.com/mattogodoy/hacker-sounds)
 
 [timmyreilly/TypewriterNoises-VSCode](https://github.com/timmyreilly/TypewriterNoises-VSCode)
+
+## Lincene
+MIT
