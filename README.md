@@ -308,5 +308,5 @@ newgrp input
 
 [timmyreilly/TypewriterNoises-VSCode](https://github.com/timmyreilly/TypewriterNoises-VSCode)
 
-## Lincene
+## License
 MIT
