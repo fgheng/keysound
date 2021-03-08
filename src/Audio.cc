@@ -13,6 +13,13 @@ extern "C" {
 #include <sys/stat.h>
 }
 
+/*代码注释 / Code Comments*/
+/*CN 中文               English*/
+/*Note: Translated using an online tool and some elbow grease,
+ *so the translation may not be 100% accurate.
+ */
+
+
 Audio::Audio(const std::string str, int flag): max_len(0), init_property(false) {
     init(str, flag);
 }
@@ -78,7 +85,7 @@ init_failed:
 
 void Audio::from_dir(const std::string &str) {
     bool has_file = false;
-    // 目录
+    // 目录	List
     for (int i = 0; i < 256; i++) {
         if (wav_datas[i].data) continue;
         if (read_wav(str + "/" + KEYS[i].first + ".wav", wav_datas[i])) {
@@ -128,7 +135,7 @@ void Audio::from_json(const std::string &str) {
 
             std::string wav_name = std::string(item->valuestring);
 
-            // 已经读取过该音频了
+            // 已经读取过该音频了	The audio has already been read
             if (a_map.count(wav_name) > 0) {
                 datas[KEYS[i].second] = a_map[wav_name];
                 continue;
@@ -158,7 +165,7 @@ void Audio::from_json(const std::string &str) {
 }
 
 void Audio::from_file(const std::string &str) {
-    // 单独的音乐文件
+    // 单独的音乐文件	Load separate music from file
     if (read_wav(str, wav_datas[0])) {
         for (int i = 1; i < 256; i++) {
             datas[i] = 0;
@@ -181,7 +188,7 @@ bool Audio::read_wav(const std::string &file, WAV_DATA& wav_data) {
     if (f.is_open()) {
         f.read((char *)&header, sizeof(WAVE_HEADER));
 
-        // 不是wav文件
+        // 不是wav文件		Not a wav file
         if (!tag_is_right(header.riff_id, header.riff_type)) goto failed;
 
         if (header.fmt_audio_format == 1) {
@@ -206,7 +213,7 @@ bool Audio::read_wav(const std::string &file, WAV_DATA& wav_data) {
 
         f.read((char *)wav_data.data, wav_data.len);
 
-        // 更新最大值
+        // 更新最大值		Update the maximum size
         if (wav_data.len > max_len) max_len = wav_data.len;
 
         f.close();

@@ -12,6 +12,12 @@ extern "C" {
 #include <bits/getopt_ext.h>
 }
 
+/*代码注释 / Code Comments*/
+/*CN 中文               English*/
+/*Note: Translated using an online tool and some elbow grease,
+ *so the translation may not be 100% accurate.
+ */
+
 extern char *optarg;
 
 static struct arguments {
@@ -64,6 +70,43 @@ static void process_command_line_arguments(int argc, char** argv) {
         // {"dir", required_argument, &flag, 'd'},
         // {"json", required_argument, &flag, 'j'},
         // {"log", required_argument, &flag, 'l'},
+
+
+	/*English*/
+
+	// struct option
+        // {
+            // const char *name;
+            // int         has_arg;
+            // int        *flag;
+            // int         val;
+        // };
+	// name: option name
+        // has_arg: whether to carry parameters
+        // 0: no_argument no parameters --version --help
+        // 1: required_argument one parameter --json piano.json or --json=piano.json
+        // 2: optional_argument can only be entered in the specified format --json=piano.json
+        // flag:
+        // empty:
+        // When an option is obtained, getopt_long returns val
+        // {"help", no_argument, 0,'h'}, --help, getopt_long will return'h'
+        //     non empty:
+        // When a long option is obtained, getopt_long will return 0 and point the flag to val.
+        // {"json", required_argument, &lopt,'j'}, --json ./piano.json
+        // getopt_long will return 0, and the value of lopt will be j
+        //
+        // getopt_long return value:
+        // 1. Short option found, return the found letter
+        // 2. Long option found:
+        // 1. If flag is NULL, return val
+        // 2. If flag is not NULL, then return 0, and flag points to val
+        // 3. If the queried character is not in the short length, return?
+        // 4. End, return -1
+	// {"file", required_argument, &flag, 'f'},
+        // {"dir", required_argument, &flag, 'd'},
+        // {"json", required_argument, &flag, 'j'},
+        // {"log", required_argument, &flag, 'l'},
+
 
         {"file", required_argument, 0, 'f'},
         {"dir", required_argument, 0, 'd'},
