@@ -8,6 +8,15 @@ extern "C" {
 #include <unistd.h>
 }
 
+
+/*代码注释 / Code Comments*/
+/*CN 中文               English*/
+/*Note: Translated using an online tool and some elbow grease,
+ *so the translation may not be 100% accurate.
+ */
+
+
+
 Mixer::Mixer(uint32_t buffer_len) : buffer_len(buffer_len) {
     if (buffer_len == 0) {
         buffer = nullptr;
@@ -24,10 +33,10 @@ Mixer::Mixer(uint32_t buffer_len) : buffer_len(buffer_len) {
     buffer_end = buffer_start + buffer_len;
 }
 
-// 进行混音，从当前的pos位置开始即可
+// 进行混音，从当前的pos位置开始即可			To mix, start from the current "pos" position
 void Mixer::mix(uint8_t *buf, uint32_t size, uint16_t bits_per_sample) {
-    // 如果长度大于buffer_len，那么后面的应该截取掉，
-    // 虽然不太可能出现这种情况，但还是加上判断吧
+    // 如果长度大于buffer_len，那么后面的应该截取掉，	If the length is greater than buffer_len, then the latter should be intercepted,
+    // 虽然不太可能出现这种情况，但还是加上判断吧	although this is unlikely  to happen, let's be sure.
     if (buf == nullptr || buffer_len == 0) return;
     if (size > buffer_len) size = buffer_len;
 
@@ -48,7 +57,7 @@ void Mixer::mix(uint8_t *buf, uint32_t size, uint16_t bits_per_sample) {
 
 void Mixer::mix8(uint8_t *buf, uint32_t size) {
     if (buffer_end - pos < size) {
-        // 传入的size要比pos 到 end大
+        // 传入的size要比pos 到 end大		The incoming size is larger than "pos" to "end"
         mtx.lock();
         for (int i = 0; i < buffer_end - pos; i++) {
             uint8_t A = *(pos + i);
@@ -76,7 +85,7 @@ void Mixer::mix8(uint8_t *buf, uint32_t size) {
 
 void Mixer::mix16(uint8_t *buf, uint32_t size) {
 
-    // 传入的buffer比较大， 超过了剩余的内存
+    // 传入的buffer比较大， 超过了剩余的内存		The incoming buffer is relatively large and exceeds the remaining memory
     if (buffer_end - pos < size) {
         mtx.lock();
         for (int i = 0; i < (buffer_end-pos) / 2; i++) {
@@ -106,8 +115,8 @@ void Mixer::mix16(uint8_t *buf, uint32_t size) {
 }
 
 void Mixer::mix32(uint8_t *buf, uint32_t size) {
-    // 传入的buffer比较大，
-    // 超过了剩余的内存
+    // 传入的buffer比较大，		The incoming buffer is relatively large,
+    // 超过了剩余的内存			Exceeded the remaining memory
     if (buffer_end - pos < size) {
         mtx.lock();
         for (int i = 0; i < (buffer_end-pos) / 4; i++) {
@@ -137,23 +146,23 @@ void Mixer::mix32(uint8_t *buf, uint32_t size) {
 }
 
 void Mixer::get_mix(call_back func, uint32_t size) {
-    // 取数据，pos会移动
+    // 取数据，pos会移动		Fetch data, pos will move
     mtx.lock();
 
     uint32_t buf_pos = 0;
     // uint32_t need = size;
 
-    // 所需大于0
+    // 所需大于0		Need to be greater than 0
     while (size - buf_pos > 0) {
         if (size - buf_pos > buffer_end - pos) {
-            // 所需大于mixer的buffer的当前位置到结尾
+            // 所需大于mixer的buffer的当前位置到结尾	The current position to the end of the buffer that needs to be larger than the mixer
             func(pos, buffer_end - pos);
-            // 拷贝过后的数据归0
+            // 拷贝过后的数据归0			Return the data after copying to 0
             std::memset(pos, 0, buffer_end-pos);
             buf_pos += buffer_end - pos;
             pos = buffer_start;
         } else {
-            // 所需小于mixer的buffer当前位置到结尾
+            // 所需小于mixer的buffer当前位置到结尾	The current position of the buffer that needs to be smaller than the mixer to the end
             func(pos, size - buf_pos);
             std::memset(pos, 0, size - buf_pos);
             pos += size - buf_pos;
@@ -163,7 +172,7 @@ void Mixer::get_mix(call_back func, uint32_t size) {
         }
     }
 
-    // // 请求的数据块大于剩余的数据块，正常应该不会出现这种情况
+    // // 请求的数据块大于剩余的数据块，正常应该不会出现这种情况	The requested data block is larger than the remaining data blocks, normally this should not happen
     // if (size > buffer_end - pos) {
         // func(pos, buffer_end - pos);
         // std::memset(pos, 0, buffer_end-pos);
@@ -182,9 +191,9 @@ void Mixer::get_mix(call_back func, uint32_t size) {
     mtx.unlock();
 }
 
-// 向buf拷贝size个数据
+// 向buf拷贝size个数据		Copy size data to buf
 void Mixer::get_mix(uint8_t *buf, uint32_t size) {
-    // 取数据，pos会移动
+    // 取数据，pos会移动	Fetch data, pos will move
     mtx.lock();
 
     uint32_t buf_pos = 0;
@@ -193,7 +202,7 @@ void Mixer::get_mix(uint8_t *buf, uint32_t size) {
     while (size - buf_pos > 0) {
         if (size - buf_pos > buffer_end - pos) {
             std::memcpy(buf + buf_pos, pos, buffer_end - pos);
-            // 拷贝过后的数据归0
+            // 拷贝过后的数据归0	Return the data after copying to 0
             std::memset(pos, 0, buffer_end-pos);
             buf_pos += buffer_end - pos;
             pos = buffer_start;
@@ -207,14 +216,14 @@ void Mixer::get_mix(uint8_t *buf, uint32_t size) {
         }
     }
 
-    // // 请求的数据块大于剩余的数据块
+    // // 请求的数据块大于剩余的数据块		The requested data block is larger than the remaining data block
     // if (size > buffer_end - pos) {
         // std::cout << "---------------------" << std::endl;
         // std::cout << "pos start " << pos - buffer_start << std::endl;
         // std::cout << "size " << size << std::endl;
         // std::cout << "buffer_end - pos " << buffer_end - pos << std::endl;
         // std::memcpy(buf, pos, buffer_end - pos);
-        // // 拷贝过后的数据归0
+        // // 拷贝过后的数据归0			Return the data after copying to 0
         // std::memset(pos, 0, buffer_end-pos);
 
         // uint32_t left = size - (buffer_end - pos);
@@ -250,12 +259,12 @@ inline int8_t Mixer::mix_int8(int8_t A, int8_t B) {
 }
 
 inline int16_t Mixer::mix_int16(int16_t A, int16_t B) {
-    // 应该改为内联汇编，使用汇编判断溢出位
+    // 应该改为内联汇编，使用汇编判断溢出位				Should be changed to inline assembly, use assembly to determine the overflow bit
     // uint16_t C = A + B
-    // 如果溢出，C = xxx
-    // 该函数应该改为右值引用?
+    // 如果溢出，C = xxx						If it overflows, C = xxx
+    // 该函数应该改为右值引用?						Should this function be changed to an rvalue reference?
 
-    // 参考 http://blog.sina.com.cn/s/blog_4d61a7570101arsr.html
+    // 参考 http://blog.sina.com.cn/s/blog_4d61a7570101arsr.html	Reference: http://blog.sina.com.cn/s/blog_4d61a7570101arsr.html
     int32_t A1 = static_cast<int32_t>(A);
     int32_t B1 = static_cast<int32_t>(B);
     int32_t C = A1 + B1 - (A1 * B1 >> 0x10);
