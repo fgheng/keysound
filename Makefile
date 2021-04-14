@@ -39,6 +39,8 @@ $(TARGET): $(OBJS)
 	$(LD) -o $@ $^ $(CFLAGS) $(LIB)
 
 # 由cc生成oo，编译的时候只需要头文件和源文件，不需要-l的，但是需要-D
+# Generate oo from cc files, but only using the header and source files
+#	for compiling. Don't use -I, instead use -D
 $(BUILD_DIR)/%.o:$(SRC)/%.cc
 	@ if [ ! -d $(BUILD_DIR) ]; then mkdir -p $(BUILD_DIR); fi;
 	$(CC) -c $(INCLUDE) $(CFLAGS) $(MARCO) -o $@ $<

@@ -7,9 +7,16 @@ extern "C" {
 #include <unistd.h>
 }
 
+/*代码注释 / Code Comments*/
+/*CN 中文               English*/
+/*Note: Translated using an online tool and some elbow grease,
+ *so the translation may not be 100% accurate.
+ */
+
+
 static bool stop = false;
 
-// 停止播放
+// 停止播放	Stop playing
 void stop_play() {
     stop = true;
 }
@@ -33,18 +40,18 @@ static void sdl_callback(void *userdata, uint8_t *stream, int len) {
 void play(Mixer *mixer, uint16_t frame_num, uint16_t channels,
         uint32_t sample_rate, uint16_t bits_per_sample) {
 
-    uint32_t sleep_time; // 播放一组buffer所需的时间，ms
+    uint32_t sleep_time; // 播放一组buffer所需的时间，ms	The time required to play a set of buffers, in ms
     SDL_AudioDeviceID dev;
     SDL_AudioSpec spec;
 
-    spec.freq = sample_rate; // 采样率
+    spec.freq = sample_rate; // 采样率		Sampling Rate
     switch (bits_per_sample) {
         case 8:
             spec.format = AUDIO_U8;
             break;
         case 16:
-            // 小字端，AUDIO_S16LSB
-            // 与系统一致，AUDIO_S16SYS
+            // 小字端，AUDIO_S16LSB		Least significant bit end, AUDIO_S16LSB
+            // 与系统一致，AUDIO_S16SYS		Consistent with the system, AUDIO_S16SYS
             spec.format = AUDIO_S16LSB;
             break;
         case 32:
@@ -54,12 +61,12 @@ void play(Mixer *mixer, uint16_t frame_num, uint16_t channels,
             spec.format = AUDIO_U8;
             break;
     }
-    spec.silence = 0; // 静音值
+    spec.silence = 0; // 静音值			Mute value
     spec.channels = channels;
-    // 缓冲区大小，单位帧
-    // 帧frame的数量，每个帧的字节数量=通道*bits_per_sample/8
+    // 缓冲区大小，单位帧				Buffer size, unit frame
+    // 帧frame的数量，每个帧的字节数量=通道*bits_per_sample/8		The number of frames, the number of bytes in each frame = channel*bits_per_sample/8
     spec.samples = frame_num;
-    // 缓冲区大小，单位字节，如果没有会SDL会自动计算
+    // 缓冲区大小，单位字节，如果没有会SDL会自动计算		Buffer size, in bytes, if not, SDL will calculate it automatically
     spec.size = spec.samples * channels * bits_per_sample / 8;
 
 #ifdef __SDL_CALL_BACK__
@@ -121,29 +128,29 @@ extern "C" {
 }
 
 /**
- * @brief 初始化硬件
+ * @brief 初始化硬件 Initialize the hardware
  *
- * @param channels 通道数量
- * @param sample_rate 采样率
- * @param bits_per_sample 每个样本点所需的bit数量
+ * @param channels 通道数量 Number of channels
+ * @param sample_rate 采样率 Sampling Rate
+ * @param bits_per_sample 每个样本点所需的bit数量 The number of bits required for each sample point
  */
 static int init_alsa(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_sample,
         snd_pcm_t *&gp_handle, snd_pcm_uframes_t &frames) {
 
     int rc;
-    snd_pcm_hw_params_t *gp_params; // 设置流的硬件参数
+    snd_pcm_hw_params_t *gp_params; // 设置流的硬件参数		Set the hardware parameters of the stream
 
-    // 打开pcm设备
+    // 打开pcm设备		Open the pcm device
     rc = snd_pcm_open(&gp_handle, "default", SND_PCM_STREAM_PLAYBACK, 0);
     if (rc < 0) {
         std::cout << "unale to open pcm device" << std::endl;
         return -1;
     }
 
-    // 为参数分配空间
+    // 为参数分配空间		Allocate space for parameters
     snd_pcm_hw_params_alloca(&gp_params);
 
-    // 填充默认值
+    // 填充默认值		Fill default value
     rc = snd_pcm_hw_params_any(gp_handle, gp_params);
     if (rc < 0) {
         snd_pcm_close(gp_handle);
@@ -151,7 +158,7 @@ static int init_alsa(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_
         return -1;
     }
 
-    // 交错模式
+    // 交错模式			Interleaved mode
     rc = snd_pcm_hw_params_set_access(gp_handle, gp_params, SND_PCM_ACCESS_RW_INTERLEAVED);
     if (rc < 0) {
         snd_pcm_close(gp_handle);
@@ -159,7 +166,7 @@ static int init_alsa(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_
         return -1;
     }
 
-    // 设置格式
+    // 设置格式			Set format
     snd_pcm_format_t format;
     switch (bits_per_sample) {
         case 8:
@@ -185,7 +192,7 @@ static int init_alsa(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_
         return -1;
     }
 
-    // 设置通道
+    // 设置通道			Set up the channel
     rc = snd_pcm_hw_params_set_channels(gp_handle, gp_params, channels);
     if (rc < 0) {
         snd_pcm_close(gp_handle);
@@ -193,7 +200,7 @@ static int init_alsa(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_
         return -1;
     }
 
-    // 设置采样率
+    // 设置采样率		Set sample rate
     int dir;
     rc = snd_pcm_hw_params_set_rate_near(gp_handle, gp_params, &sample_rate, &dir);
     if (rc < 0) {
@@ -202,7 +209,7 @@ static int init_alsa(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_
         return -1;
     }
 
-    // 将参数写入驱动
+    // 将参数写入驱动		Write parameters to the device
     rc = snd_pcm_hw_params(gp_handle, gp_params);
     if (rc < 0) {
         snd_pcm_close(gp_handle);
@@ -210,7 +217,7 @@ static int init_alsa(uint16_t channels, uint32_t sample_rate, uint16_t bits_per_
         return -1;
     }
 
-    // 一个DMA有几个frame
+    // 一个DMA有几个frame	A DMA has several frames
     snd_pcm_uframes_t buffer_size_tmp;
     snd_pcm_hw_params_get_period_size(gp_params, &frames, &dir);
     // snd_pcm_hw_params_get_buffer_size(gp_params, &buffer_size_tmp);
@@ -263,9 +270,9 @@ void play(Mixer *mixer, uint16_t frame_num, uint16_t channels,
         usleep(sleep_time*1000);
     }
 
-    // 这里需要重新写一下while的判断条件
-    // ctrl c的时候结束
-    // ctrl c统一个函数，该函数结束所有各种各样的线程
+    // 这里需要重新写一下while的判断条件		Here you need to rewrite the judgment condition of while
+    // ctrl c的时候结束					ctrl c when it ends
+    // ctrl c统一个函数，该函数结束所有各种各样的线程	ctrl c is a function that ends all kinds of threads
     snd_pcm_close(gp_handle);
     snd_pcm_drain(gp_handle);
     snd_pcm_close(gp_handle);
@@ -289,15 +296,15 @@ void play(Mixer *mixer, uint16_t frame_num, uint16_t channels,
             ss.format = PA_SAMPLE_U8;
             break;
         case 16:
-            // wav的数据是小字端存储的
+            // wav的数据是小字端存储的		The data of wav is stored in small samples
             ss.format = PA_SAMPLE_S16LE;
             break;
         case 24:
-            // 有符号?
+            // 有符号?				Signed?
             ss.format = PA_SAMPLE_S24LE;
             break;
         case 32:
-            // 有符号?
+            // 有符号?				Signed?
             ss.format = PA_SAMPLE_S32LE;
             break;
         default:
@@ -315,9 +322,9 @@ void play(Mixer *mixer, uint16_t frame_num, uint16_t channels,
         return;
     }
 
-    // 每个frame拥有的字节数
+    // 每个frame拥有的字节数		The number of bytes in each frame
     uint16_t frame_bytes = channels * bits_per_sample / 8;
-    // 一个buffer持续的时间
+    // 一个buffer持续的时间		The duration of a buffer
     uint32_t sleep_time = (frame_num * frame_bytes * 1000) /
         (sample_rate * channels * bits_per_sample / 8);
 
