@@ -27,7 +27,8 @@ extern "C" {
 
 #define UEVENT_BUFFER_SIZE 512
 
-static const std::string cmd1 = "grep -E 'Handlers|EV=' /proc/bus/input/devices | grep -B1 'EV=1[2]001[3Ff]' | grep -Eo 'event[0-9]+'";
+// static const std::string cmd1 = "grep -E 'Handlers|EV=' /proc/bus/input/devices | grep -B1 'EV=1[2]001[3Ff]' | grep -Eo 'event[0-9]+'";
+static const std::string cmd1 = "grep -E 'Handlers|EV=' /proc/bus/input/devices | grep -B1 'EV=1[2]001' | grep -Eo 'event[0-9]+'";
 static const std::string cmd2 = "grep -B2 'EV=1[2]001[3Ff]' /proc/bus/input/devices | grep event";
 
 // 是否监控设备		Whether to monitor the hardware

@@ -18,6 +18,7 @@ MARCO =
 ifeq ($(CFLAG), )
 	MARCO+=-D USE_PULSE
 	LIB+=-lpulse-simple
+	LIB+=-lpulse
 else ifeq ($(CFLAG), pulse)
 	MARCO+=-D USE_PULSE
 	LIB+=-lpulse-simple

@@ -38,7 +38,7 @@ void key_detect(std::string str_event_id, Audio *audio, Mixer *mixer) {
     // 如果使用input组的方式，那么需要加上sleep，否则新插入的键盘会读取失败			If you use the "input" group method, you need to add sleep, otherwise the newly inserted keyboard will fail to read
     // 不清楚是为什么，是因为文件创建的慢了？还是权限不够了？					Not sure why, is it because the file creation is slow? Still not enough permissions?
     // 也不是文件不存在的问题，我尝试判断文件是否存在，文件是存在的				It's not because the file doesn't exist, I tried to see if it does and it does in fact exist.
-    // 那是因为权限没有跟上？尝试了一下确实是不可读，这是为什么呢？因为权限管理的延迟？		Is that because the permissions didn't carry over? After one  try, it becomes  unreadable. Why is this? Because 
+    // 那是因为权限没有跟上？尝试了一下确实是不可读，这是为什么呢？因为权限管理的延迟？		Is that because the permissions didn't carry over? After one  try, it becomes  unreadable. Why is this? Because
     // 使用open的阻塞方式 O_NONBLOCK 打开也不行							of the delay in rights management?
     // add_event_id(str_event_id);								Use O_NONBLOCK method when opening
     // while (event_id_exists(str_event_id) && access((input_file_header + str_event_id).c_str(), R_OK) == -1) {
