@@ -1,6 +1,8 @@
 # Keysound
 
-![pic](./pic/piano.jpg)
+![pic](https://github.com/SenlinOS/databox/blob/master/Keysound-icon.svg)
+
+感谢 [SenlinOS](https://github.com/SenlinOS) 提供的图标
 
 <a href="./README-en.md">English README</a>  感谢[@MiraculousMoon](https://github.com/MiraculousMoon)提供英文版
 
