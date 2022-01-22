@@ -1,0 +1,10 @@
+{
+  "dir": "./audio/typewriter-dog",
+
+  "default": "key.wav",
+  "backspace": "backspace.wav",
+  "delete": "delete.wav",
+  "enter": "enter.wav",
+  "space": "spacebar.wav",
+  "tab": "tab.wav"
+}
