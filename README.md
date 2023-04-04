@@ -83,7 +83,7 @@ make CFLAG=alsa
 编译完成后，我们需要将用户加入到input用户组才可以使用keysound
 
 ```
-sudo usermod -a -G input 用户名
+sudo usermod -a -G input $USER
 ```
 
 重新登录以使附加组生效。
